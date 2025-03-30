@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Missing: Alex Valegro</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- p5.js libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+  <!-- Your script -->
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1><b>HAVE EVIDENCE?</b></h1>
+    <p class="urgent-message">Submit important evidence that could lead to justice for Alex.</p>
+  </header>
+  <main>
+    <section class="upload-screen">
+      <h2 class="upload-title">-Upload Evidence Files-</h2>
+      <div class="upload-files">
+        <input type="file" id="fileInput" multiple style="display: none;">
+        <button class="upload-button" onclick="document.getElementById('fileInput').click()"> <img src="upload-file.png"
+            width=78px height=auto style="text-decoration: none;"></button>
+        <div id="selectedFiles" class="selected-files"></div>
+      </div>
+    </section>
+
+  </main>
+  <footer>
+    <p class="footer-note">
+      Terms of Use | Privacy Policy <br>
+      This website is part of an interactive storytelling game experience. Some content has been fictionalized for
+      engagement purposes. <br>
+      © 2025 Help Find Alex. All Rights Reserved.
+    </p>
+  </footer>
+</body>
+
+</html>

@@ -532,4 +532,6 @@ function triggerFinalUploadEmail() {
     });
 }
 
-document.getElementById('upload-button').addEventListener('click', triggerFinalUploadEmail);
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById('upload-button').addEventListener('click', triggerFinalUploadEmail);
+});

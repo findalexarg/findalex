@@ -613,12 +613,15 @@ function initializeP5Game() {
           }
 
           // Show success message on the upload page
-          const successMsg = document.createElement('div');
-          successMsg.className = 'evidence-verified';
-          successMsg.innerHTML = '<h3>Evidence Accepted</h3><p>Code: ' + finalCode + '</p>';
-          document.querySelector('.upload-screen').appendChild(successMsg);
-        }
-        return;
+        const successMsg = document.createElement('div');
+successMsg.className = 'evidence-verified';
+successMsg.innerHTML = `
+  <h3>Evidence Accepted</h3>
+  <p>Code: ${finalCode}</p>
+  <button onclick="window.location.href='vault.html'" class="reload-btn">🔓 Reload Content?</button>
+`;
+document.querySelector('.upload-screen').appendChild(successMsg);
+   return;
       }
 
       // Slot game controls

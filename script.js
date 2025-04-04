@@ -781,4 +781,4 @@ function triggerFinalUploadEmail() {
 }
 
 // Example: Attach the triggerFinalUploadEmail() function to a button click or call it when the mini-game is complete.
-document.getElementById('finalUploadButton').addEventListener('click', triggerFinalUploadEmail);
+document.getElementById('upload-button').addEventListener('click', triggerFinalUploadEmail);

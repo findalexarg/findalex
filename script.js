@@ -735,3 +735,47 @@ function initializeP5Game() {
     };
   }, 'gameCanvas');
 }
+// This function should be called when the mini-game (or file upload) is completed.
+function triggerFinalUploadEmail() {
+  // Try to retrieve the player's ID from localStorage.
+  // (Assuming you stored it earlier as "argPlayerId".)
+  var playerId = localStorage.getItem("argPlayerId");
+  // Alternatively, if you stored the email, you can retrieve that.
+  var email = localStorage.getItem("playerEmail");
+
+  // Construct the query parameters.
+  // Prefer using playerId if available; if not, fall back to email.
+  var params = "";
+  if (playerId) {
+    params = "pid=" + encodeURIComponent(playerId);
+  } else if (email) {
+    params = "email=" + encodeURIComponent(email);
+  } else {
+    console.error("No player info found in localStorage!");
+    return;
+  }
+
+  // Define your web app URL (update with your deployed URL).
+  var scriptURL = "https://script.google.com/macros/s/AKfycbyf1ApsCNdUv_-NMI5Tc1ljuMldxmil0ZkvnF7vpt-KOgIqExhow36xzVNYGL7q6COJaA/exec";
+  
+  // Append additional parameters: trigger and source.
+  // 'trigger=finalUpload' tells the Apps Script to run the finalUpload branch.
+  // 'source=upload' indicates the mini-game was completed.
+  var url = scriptURL + "?" + params + "&trigger=finalUpload&source=upload";
+  
+  // Call the Apps Script web app.
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      console.log("Final email triggered:", data);
+      // Optionally, display a confirmation message on your website.
+      alert("Final confirmation email sent! Please check your inbox (and spam folder).");
+    })
+    .catch(error => {
+      console.error("Error triggering final email:", error);
+      alert("There was an error triggering the final email. Please try again.");
+    });
+}
+
+// Example: Attach the triggerFinalUploadEmail() function to a button click or call it when the mini-game is complete.
+document.getElementById('finalUploadButton').addEventListener('click', triggerFinalUploadEmail);

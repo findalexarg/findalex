@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Evidence Vault</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #111;
+      color: #0f0;
+      padding: 2em;
+    }
+    .hidden { display: none; }
+    .terminal-box {
+      background: #000;
+      padding: 2em;
+      border: 2px solid #0f0;
+      border-radius: 8px;
+      max-width: 600px;
+      margin: auto;
+    }
+    button {
+      background: black;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 0.5em 1em;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    input {
+      background: black;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 0.5em;
+      width: 100%;
+      font-family: monospace;
+      margin-top: 0.5em;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-box">
+    <h2>[SECURE ACCESS PORTAL]</h2>
+    <div id="codePrompt">
+      <p>ACCESS CODE REQUIRED:</p>
+      <input type="text" id="accessCodeInput" placeholder="Enter Code...">
+      <button onclick="checkCode()">Submit</button>
+    </div>
+
+    <div id="pendingSection" class="hidden">
+      <p>Status: <strong>PENDING EVIDENCE EVALUATION</strong></p>
+      <p>Evidence timestamp recorded. Return after <strong>tomorrow</strong> for status update regarding evidence. Use link https://findalex.netlify.app/vault</p>
+      <p>Last Access: <span id="lastAccessTime"></span></p>
+    </div>
+
+    <div id="articleSection" class="hidden">
+      <h3>[EVIDENCE UNSEALED]</h3>
+      <p><strong>Title:</strong> “Local Student's Death Linked to Shadowy "Cyber Club"”</p>
+      <p><strong>By:</strong> Fox 37 News</p>
+      <p>Alex’s final article is now available. It contains critical evidence collected prior to her disappearance...</p>
+      <!-- You can insert full article HTML here or link to it -->
+    </div>
+  </div>
+
+  <script>
+    const correctCode = "0xF3E-9B7C"; // change as needed
+    const requiredHours = 12;
+    const vaultKey = "vaultAccessTimestamp";
+
+    function checkCode() {
+      const userCode = document.getElementById("accessCodeInput").value.trim();
+      if (userCode === correctCode) {
+        const now = new Date();
+        localStorage.setItem(vaultKey, now.toISOString());
+        displayState(now);
+      } else {
+        alert("Invalid code. Please try again.");
+      }
+    }
+
+    function displayState(startTime) {
+      const now = new Date();
+      const diffHours = (now - startTime) / (1000 * 60 * 60);
+
+      document.getElementById("codePrompt").classList.add("hidden");
+
+      if (diffHours >= requiredHours) {
+        document.getElementById("articleSection").classList.remove("hidden");
+      } else {
+        document.getElementById("pendingSection").classList.remove("hidden");
+        document.getElementById("lastAccessTime").textContent = startTime.toLocaleString();
+      }
+    }
+
+    // Auto-check on page load if localStorage timestamp already exists
+    window.onload = function () {
+      const savedTimestamp = localStorage.getItem(vaultKey);
+      if (savedTimestamp) {
+        const parsedTime = new Date(savedTimestamp);
+        displayState(parsedTime);
+      }
+    }
+  </script>
+</body>
+</html>

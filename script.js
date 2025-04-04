@@ -183,7 +183,7 @@ function initializeP5Game() {
       try {
         // Try loading the logo image
         // NOTE: Double-check that the asset path is correct!
-        logo = p.loadImage("assets/Logo_Final.png", 
+        logo = p.loadImage("http://127.0.0.1:5500/assets/Logo_Final.png", 
           () => { console.log("Logo loaded successfully."); },
           (err) => { console.error("Error loading logo image:", err); }
         );

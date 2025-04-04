@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   const fileInput = document.getElementById('fileInput');
   const selectedFilesDiv = document.getElementById('selectedFiles');
+  const uploadButton = document.getElementById('upload-button');
 
   // Track uploaded files
   let uploadedFiles = [];
@@ -45,6 +46,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   } else {
     console.error("File input or selectedFiles element not found in the DOM.");
+  }
+
+  // Add email trigger to the original upload button (only needed for the final stage)
+  if (uploadButton) {
+    uploadButton.addEventListener('click', function(e) {
+      // This prevents the click from both uploading a file and sending an email
+      // The main purpose is to trigger the file dialog
+      if (e.target === uploadButton) {
+        // Do not trigger email here, just open file dialog
+        // The actual email trigger will happen after game completion
+      }
+    });
   }
 });
 
@@ -183,7 +196,7 @@ function initializeP5Game() {
       try {
         // Try loading the logo image
         // NOTE: Double-check that the asset path is correct!
-        logo = p.loadImage("http://127.0.0.1:5500/assets/Logo_Final.png", 
+        logo = p.loadImage("assets/Logo_Final.png", 
           () => { console.log("Logo loaded successfully."); },
           (err) => { console.error("Error loading logo image:", err); }
         );
@@ -348,19 +361,133 @@ function initializeP5Game() {
       return shuffled;
     }
 
-    // Drawing functions (drawStartScreen, drawGlitchScreen, etc.) remain unchanged.
-    function drawStartScreen() { /* ... */ }
-    function drawGlitchScreen() { /* ... */ }
-    function drawProgressBar() { /* ... */ }
-    function drawTitle() { /* ... */ }
-    function drawQuestionBox() { /* ... */ }
-    function drawSlotGame() { /* ... */ }
-    function drawNodesGame() { /* ... */ }
-    function drawSelectedSequence() { /* ... */ }
-    function drawArrow(x, y, size, direction) { /* ... */ }
-    function drawButton(label, centerX, y, w, h) { /* ... */ }
-    function drawResultMessage(msg) { /* ... */ }
-    function drawFinalScreen() { /* ... */ }
+    // Add placeholder functions for drawing functions
+    function drawStartScreen() {
+      p.background(0);
+      p.fill(255, 0, 0);
+      p.textSize(32);
+      p.text("CLICK TO START", p.width/2, p.height/2);
+    }
+    
+    function drawGlitchScreen() {
+      p.background(0);
+      for (let i = 0; i < 50; i++) {
+        p.fill(p.random(255), p.random(255), p.random(255));
+        p.rect(p.random(p.width), p.random(p.height), p.random(100), p.random(100));
+      }
+      p.fill(255);
+      p.textSize(32);
+      p.text("SYSTEM COMPROMISED", p.width/2, p.height/2);
+    }
+    
+    function drawProgressBar() {
+      p.fill(100);
+      p.rect(50, 40, p.width - 100, 10);
+      p.fill(255, 0, 0);
+      p.rect(50, 40, (p.width - 100) * progressFraction, 10);
+    }
+    
+    function drawTitle() {
+      p.fill(255, 0, 0);
+      p.textSize(24);
+      p.text("SECURITY BYPASS MODULE", p.width/2, 25);
+    }
+    
+    function drawQuestionBox() {
+      p.fill(30);
+      p.rect(50, 60, p.width - 100, 80, 5);
+      p.fill(255);
+      p.textSize(16);
+      p.text(questionText, p.width/2, 100);
+    }
+    
+    function drawSlotGame() {
+      let colSpacing = p.width / (numColumns + 1);
+      let centerY = p.height / 2 + 50;
+      p.textSize(40);
+      
+      for (let i = 0; i < numColumns; i++) {
+        let colX = colSpacing * (i + 1);
+        p.fill(40);
+        p.rect(colX - 40, centerY - 160, 80, 320, 5);
+        
+        for (let j = 0; j < numRows; j++) {
+          let letterY = centerY + (j - 2) * 50;
+          p.fill(j === 2 ? 255 : 150);
+          p.text(columns[i][j], colX, letterY);
+        }
+        
+        drawArrow(colX, centerY - 2 * 50 - 30, 20, -1);
+        drawArrow(colX, centerY + 2 * 50 + 30, 20, 1);
+      }
+    }
+    
+    function drawNodesGame() {
+      for (let i = 0; i < nodes.length; i++) {
+        let n = nodes[i];
+        p.fill(n.selected ? themeColor : 50);
+        p.ellipse(n.x, n.y, nodeDiameter);
+        p.fill(255);
+        p.textSize(24);
+        p.text(n.letter, n.x, n.y);
+      }
+      
+      drawSelectedSequence();
+    }
+    
+    function drawSelectedSequence() {
+      p.fill(30);
+      p.rect(p.width/2 - 150, 170, 300, 60, 5);
+      p.fill(255);
+      p.textSize(32);
+      let seqStr = selectedSequence.map(obj => obj.letter).join("");
+      p.text(seqStr, p.width/2, 200);
+    }
+    
+    function drawArrow(x, y, size, direction) {
+      p.fill(200);
+      p.noStroke();
+      p.triangle(
+        x, y + direction * size,
+        x + size * 0.7, y - direction * size * 0.5,
+        x - size * 0.7, y - direction * size * 0.5
+      );
+    }
+    
+    function drawButton(label, centerX, y, w, h) {
+      p.fill(40);
+      p.rect(centerX - w/2, y - h/2, w, h, 5);
+      p.fill(255);
+      p.textSize(16);
+      p.text(label, centerX, y);
+    }
+    
+    function drawResultMessage(msg) {
+      p.fill(msg === "ACCESS GRANTED" ? color(0, 255, 0, 150) : color(255, 0, 0, 150));
+      p.rect(0, p.height/2 - 30, p.width, 60);
+      p.fill(255);
+      p.textSize(28);
+      p.text(msg, p.width/2, p.height/2);
+    }
+    
+    function drawFinalScreen() {
+      p.background(0);
+      p.fill(0, 255, 0);
+      p.textSize(36);
+      p.text("SECURITY BREACHED", p.width/2, p.height/2 - 80);
+      p.fill(255);
+      p.textSize(24);
+      p.text("CODE EXTRACTED:", p.width/2, p.height/2 - 20);
+      p.textSize(32);
+      p.fill(255, 255, 0);
+      p.text(finalCode, p.width/2, p.height/2 + 30);
+      
+      drawButton("RETURN TO SYSTEM", p.width/2, p.height/2 + 100, 300, 50);
+    }
+
+    function color(r, g, b, a) {
+      return p.color(r, g, b, a);
+    }
 
     p.mousePressed = function () {
       if (finalScreen) {
@@ -385,6 +512,10 @@ function initializeP5Game() {
             <button onclick="window.location.href='vault.html'" class="reload-btn">🔓 Reload Content?</button>
           `;
           document.querySelector('.upload-screen').appendChild(successMsg);
+          
+          // Automatically trigger the email notification here
+          triggerFinalUploadEmail();
+          
           return;
         }
       }
@@ -502,7 +633,7 @@ function initializeP5Game() {
   }, 'gameCanvas');
 }
 
-// Final upload email trigger remains unchanged.
+// Email trigger function
 function triggerFinalUploadEmail() {
   var playerId = localStorage.getItem("argPlayerId");
   var email = localStorage.getItem("playerEmail");
@@ -531,7 +662,3 @@ function triggerFinalUploadEmail() {
       alert("There was an error triggering the final email. Please try again.");
     });
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById('upload-button').addEventListener('click', triggerFinalUploadEmail);
-});

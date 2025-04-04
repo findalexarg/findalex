@@ -655,10 +655,8 @@ function triggerFinalUploadEmail() {
     .then(response => response.json())
     .then(data => {
       console.log("Final email triggered:", data);
-      alert("Final confirmation email sent! Please check your inbox (and spam folder).");
     })
     .catch(error => {
       console.error("Error triggering final email:", error);
-      alert("There was an error triggering the final email. Please try again.");
     });
 }

@@ -17,7 +17,11 @@
   <title>Missing: Alex Valegro</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
-  <link rel="stylesheet" href="styles.css">
+  <!-- Main script with ES modules - only need to include the main script -->
+  <script type="module" src="scripts/script.js"></script>
+  <script src="scripts/emailForm.js"></script>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
@@ -56,7 +60,7 @@
             that she was last seen on campus around 6pm and last online the day she went missing. She spoke to her
             roommate that evening before leaving.</strong> <br><br>
 
-          Below are links to Alex’s primarily-used social media as well as that of her friends who are coordinating to
+          Below are links to Alex's primarily-used social media as well as that of her friends who are coordinating to
           find her. We are looking for any information that would be helpful in finding them. <br><br><u> Emergency
             Services have already been contacted and are already doing everything they can.</u>
         </p>
@@ -67,18 +71,18 @@
     <section class="links-section">
       <div class="link-box">
         <h2>Instagram</h2>
-        <h3><a href="https://www.instagram.com/alex.valegro/?hl=en" style="text-decoration: none" target="_blank">
+        <h3><a href="https://www.instagram.com/alex.valegro/?hl=en" target="_blank">
             @alex.valegro
           </a></h3>
         <img src="instagram.png" alt="Instagram Icon">
         <p>
-          Alex’s Instagram remains active, though there has been no recent activity. Her post history might contain
+          Alex's Instagram remains active, though there has been no recent activity. Her post history might contain
           details that could help. If you interacted with her or noticed anything unusual, please let us know.
         </p>
       </div>
       <div class="link-box">
         <h2>Alex's Blog</h2>
-        <h3><a href="https://alexvalegro.wixsite.com/alexvalegro" style="text-decoration: none" target="_blank">
+        <h3><a href="https://alexvalegro.wixsite.com/alexvalegro" target="_blank">
             Alex's Personal Blog
           </a></h3>
         <img src="website.png" alt="Website Image">
@@ -91,7 +95,7 @@
         <h2>Reddit</h2>
         <h3><a
             href="https://www.reddit.com/user/Oliviaholtz/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button&rdt=57874"
-            style="text-decoration: none" target="_blank">
+            target="_blank">
             @u/Oliviaholtz
           </a></h3>
         <img src="reddit.png" alt="Reddit Icon">
@@ -116,53 +120,6 @@
       </form>
     </section>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Email Sign-Up Form Submission
-        document.getElementById("emailForm").addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent form from reloading the page
-
-          // Grab the entered email
-          let email = document.getElementById("playerEmail").value;
-
-          // Google Apps Script URL (update with your deployed web app URL)
-          let scriptURL = "https://script.google.com/macros/s/AKfycbyf1ApsCNdUv_-NMI5Tc1ljuMldxmil0ZkvnF7vpt-KOgIqExhow36xzVNYGL7q6COJaA/exec";
-
-          // Show loading message
-          document.getElementById("emailForm").innerHTML = `<p>Joining the search, please wait...</p>`;
-
-          // The trigger parameter here is set to "findAlex" to match your Apps Script
-          fetch(scriptURL + "?email=" + encodeURIComponent(email) + "&trigger=findAlex")
-            .then(response => response.json())
-            .catch(error => {
-              console.log("Falling back to no-cors mode");
-              return fetch(scriptURL + "?email=" + encodeURIComponent(email) + "&trigger=findAlex", {
-                mode: "no-cors"
-              }).then(() => {
-                return {};
-              });
-            })
-            .then(data => {
-              let playerId = data.playerId;
-
-              // Store playerId or fallback to email if not provided
-              if (playerId) {
-                localStorage.setItem("argPlayerId", playerId);
-              } else {
-                console.log("No player ID returned, using email as backup identifier");
-                localStorage.setItem("playerEmail", email);
-              }
-
-              document.getElementById("emailForm").innerHTML = `<p>PLEASE CHECK YOUR EMAIL FOR CORRESPONDENCE! IT MAY BE IN YOUR SPAM FOLDER!</p>`;
-            })
-            .catch(error => {
-              console.error("Error:", error);
-              document.getElementById("emailForm").innerHTML = `<p>PLEASE CHECK YOUR EMAIL FOR CORRESPONDENCE! IT MAY BE IN YOUR SPAM FOLDER!</p>`;
-            });
-        }); // Close emailForm submit event listener
-      }); // Close DOMContentLoaded event listener
-    </script>
-
     <!-- Tips Section -->
     <section class="tips-section">
       <div class="tips-comments">
@@ -170,27 +127,27 @@
           <div class="tips-comments">
             <h3>Recent Comments</h3>
             <div class="comment-card">
-              <p class="comment-text">“ANYONE READING THIS: I’m Alex’s best friend, Olivia. She sent me a link the day
+              <p class="comment-text">"ANYONE READING THIS: I'm Alex's best friend, Olivia. She sent me a link the day
                 before she went missing, but I have no idea how to get in. Can anyone help me? Join the search with your
-                email and I’ll be able to message you. I was told this ‘wasn’t evidence’ and turned away, so please help
-                me! The link she left is <a href="https://72211713181284141.github.io/HTTP-ERROR-403/">HERE!!!</a>”</p>
+                email and I'll be able to message you. I was told this 'wasn't evidence' and turned away, so please help
+                me! The link she left is <a href="https://72211713181284141.github.io/HTTP-ERROR-403/">HERE!!!</a>"</p>
               <p class="comment-author">- Olivia</p>
             </div>
             <div class="comment-card">
-              <p class="comment-text">“Are we sure she’s really missing? She might just be working extremely hard on a
+              <p class="comment-text">"Are we sure she's really missing? She might just be working extremely hard on a
                 project. I remember talking to her once about her journalism final and she seemed very intense about it,
-                collecting all of these resources and information on a google drive she’d use for school.”</p>
+                collecting all of these resources and information on a google drive she'd use for school."</p>
               <p class="comment-author">- Mark</p>
             </div>
             <div class="comment-card">
-              <p class="comment-text">“I shared a writing class with her for Journalism. She was extremely active and
+              <p class="comment-text">"I shared a writing class with her for Journalism. She was extremely active and
                 talkative near the beginning of the semester, but for the last few weeks has been extremely quiet and
-                distant.”</p>
+                distant."</p>
               <p class="comment-author">- Sarah</p>
             </div>
             <div class="comment-card">
-              <p class="comment-text">“I signed up to join the search and Olivia emailed me about some stuff. I couldn’t
-                help much, but anyone smarter than me should reach out to her (so everyone).”</p>
+              <p class="comment-text">"I signed up to join the search and Olivia emailed me about some stuff. I couldn't
+                help much, but anyone smarter than me should reach out to her (so everyone)."</p>
               <p class="comment-author">- YourMom</p>
             </div>
             <div class="comment-card">

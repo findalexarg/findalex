@@ -1,0 +1,46 @@
+/* Vault Page Styles */
+.vault-body {
+  font-family: monospace;
+  background-color: #111;
+  color: #0f0;
+  padding: 2em;
+}
+
+.terminal-box {
+  background: #000;
+  padding: 2em;
+  border: 2px solid #0f0;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.terminal-box h2,
+.terminal-box h3 {
+  color: #0f0;
+  margin-bottom: 1em;
+}
+
+.terminal-box p {
+  margin-bottom: 0.5em;
+}
+
+.terminal-box button {
+  background: black;
+  color: #0f0;
+  border: 1px solid #0f0;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  font-family: monospace;
+  margin-top: 0.5em;
+}
+
+.terminal-box input {
+  background: black;
+  color: #0f0;
+  border: 1px solid #0f0;
+  padding: 0.5em;
+  width: 100%;
+  font-family: monospace;
+  margin-top: 0.5em;
+}

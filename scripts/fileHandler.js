@@ -74,7 +74,7 @@ export function triggerFinalUploadEmail() {
     });
 }
 
-// File handling functionality for upload.html
+// Initialize file handling functionality when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById('fileInput');
   const selectedFilesDiv = document.getElementById('selectedFiles');
@@ -101,22 +101,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const submitBtn = document.createElement('button');
         submitBtn.className = 'submit-button';
         submitBtn.textContent = 'Submit Evidence';
-        submitBtn.addEventListener('click', handleFileSubmission);
+        submitBtn.addEventListener('click', function () {
+          handleFileSubmission(fileInput.files);
+        });
         selectedFilesDiv.appendChild(submitBtn);
       }
     });
   }
 
-  function handleFileSubmission() {
-    // This is a placeholder for the file submission logic
-    // In a real implementation, this would upload the files to a server
-
-    // For demo purposes, show a verification message and trigger a game popup
+  function handleFileSubmission(files) {
+    // Show a verification message
     selectedFilesDiv.innerHTML = '<div class="evidence-verified"><h3>Evidence Received</h3><p>Thank you for your submission. Your evidence is being processed.</p><button class="reload-btn" onclick="location.reload()">Submit More Evidence</button></div>';
 
-    // Optionally trigger the game if implemented
-    if (typeof triggerGame === 'function') {
-      triggerGame();
-    }
+    // Verify files and launch the game popup
+    verifyAndLaunchGame(files);
+
+    // Optional: trigger email notification
+    triggerFinalUploadEmail();
   }
 });

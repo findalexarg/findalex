@@ -49,7 +49,7 @@ export const stage1 = function (p) {
   }
 
   function draw() {
-    let gridSize = 300;
+    let gridSize = 350; // Made grid a bit larger for better visibility
     let startX = p.width / 2 - gridSize / 2;
     let startY = p.height / 2 - gridSize / 2;
     let cellSize = gridSize / gridCols;
@@ -76,7 +76,7 @@ export const stage1 = function (p) {
       // Display timer for memorization phase
       p.fill(255);
       p.textSize(24);
-      p.text("Memorize: " + p.ceil((memorizeTime - elapsed) / 1000) + "s", p.width / 2, p.height / 2 - gridSize / 2 - 30);
+      p.text("Memorize: " + p.ceil((memorizeTime - elapsed) / 1000) + "s", p.width / 2, p.height / 2 - gridSize / 2 - 40);
 
       // Draw highlight on start cell
       p.fill(0, 255, 0, 100);
@@ -113,12 +113,12 @@ export const stage1 = function (p) {
     if (timeLeft > 0) {
       p.fill(255);
       p.textSize(24);
-      p.text("Time: " + p.ceil(timeLeft / 1000) + "s", p.width / 2, p.height / 2 + gridSize / 2 + 30);
+      p.text("Time: " + p.ceil(timeLeft / 1000) + "s", p.width / 2, p.height / 2 + gridSize / 2 + 50);
     }
   }
 
   function handleClick() {
-    let gridSize = 300;
+    let gridSize = 350; // Match the increased grid size
     let startX = p.width / 2 - gridSize / 2;
     let startY = p.height / 2 - gridSize / 2;
     let cellSize = gridSize / gridCols;
@@ -152,9 +152,6 @@ export const stage1 = function (p) {
           } else {
             // Provide visual feedback for incorrect attempt
             p.fill(255, 0, 0, 150);
-            let gridSize = 300;
-            let startX = p.width / 2 - gridSize / 2;
-            let startY = p.height / 2 - gridSize / 2;
             p.rect(startX, startY, gridSize, gridSize);
 
             gameState.setRoundCount(0);

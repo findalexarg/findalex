@@ -35,7 +35,7 @@ export const stage4 = function (p) {
     p.push();
     p.textSize(16);
     p.fill(0, 255, 0, 20);
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 30; i++) { // More binary for wider canvas
       let x = p.random(p.width);
       let y = p.random(p.height);
       p.text(p.random() > 0.5 ? "1" : "0", x, y);
@@ -46,8 +46,8 @@ export const stage4 = function (p) {
     pulse += 0.03;
     let glow = p.sin(pulse) * 10 + 10;
 
-    let boxSize = 60;
-    let spacing = 15;
+    let boxSize = 70; // Larger boxes
+    let spacing = 20; // More spacing
     let totalWidth = scrambled.length * (boxSize + spacing) - spacing;
     let startX = p.width / 2 - totalWidth / 2;
     let y = p.height / 2;
@@ -63,7 +63,7 @@ export const stage4 = function (p) {
       p.rect(startX + i * (boxSize + spacing), y, boxSize, boxSize, 5);
       p.fill(0, 255, 0);
       p.noStroke();
-      p.textSize(32);
+      p.textSize(36); // Larger text
       p.text(scrambled[i], startX + i * (boxSize + spacing) + boxSize / 2, y + boxSize / 2);
       p.pop();
     }
@@ -73,10 +73,10 @@ export const stage4 = function (p) {
     p.fill(0, 0, 0, 200);
     p.stroke(0, 255, 0);
     p.strokeWeight(2);
-    p.rect(p.width / 2 - 250, y - 150, 500, 80, 5);
+    p.rect(p.width / 2 - 350, y - 150, 700, 80, 5); // Wider box
 
     p.fill(0, 255, 0);
-    p.textSize(32);
+    p.textSize(36); // Larger text
     if (selected.length > 0) {
       p.text(selected.join(""), p.width / 2, y - 110);
     } else {
@@ -86,7 +86,7 @@ export const stage4 = function (p) {
 
     // Draw instructions
     p.fill(255);
-    p.textSize(24);
+    p.textSize(28); // Larger text
     p.text("Unscramble the secret message", p.width / 2, y - 180);
 
     // Show time remaining
@@ -122,8 +122,8 @@ export const stage4 = function (p) {
   }
 
   function handleClick() {
-    let boxSize = 60;
-    let spacing = 15;
+    let boxSize = 70; // Match the updated box size from draw()
+    let spacing = 20; // Match the updated spacing from draw()
     let totalWidth = scrambled.length * (boxSize + spacing) - spacing;
     let startX = p.width / 2 - totalWidth / 2;
     let y = p.height / 2;

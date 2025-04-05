@@ -3,10 +3,10 @@ import { gameState } from './gameState.js';
 
 export const stage2 = function (p) {
   // Private variables
-  let lineY;
-  let markerX;
-  let indicatorX;
-  let direction;
+  let lineY = p.height ? p.height / 2 : 400; // Default value in case p.height is not available yet
+  let markerX = p.width ? p.random(250, p.width - 250) : 600; // Adjusted for wider canvas
+  let indicatorX = 250; // Initial position adjusted for wider canvas
+  let direction = 1;
   let speed = 6.0; // Slower for easier timing
   let threshold = 30; // Wider hitbox for success
   let pulseSize = 0;
@@ -15,8 +15,8 @@ export const stage2 = function (p) {
   // Initialize a new round
   function initRound() {
     lineY = p.height / 2;
-    markerX = p.random(150, p.width - 150);
-    indicatorX = 150;
+    markerX = p.random(250, p.width - 250); // Adjusted for wider canvas
+    indicatorX = 250; // Adjusted for wider canvas
     direction = 1;
     pulseSize = 0;
     pulseDir = 1;
@@ -24,7 +24,7 @@ export const stage2 = function (p) {
 
   function update() {
     indicatorX += speed * direction;
-    if (indicatorX > p.width - 100 || indicatorX < 100) {
+    if (indicatorX > p.width - 200 || indicatorX < 200) { // Adjusted margin for wider canvas
       direction *= -1;
     }
   }
@@ -51,7 +51,7 @@ export const stage2 = function (p) {
     for (let i = 0; i < 5; i++) {
       let y = p.map(i, 0, 4, p.height / 2 - 100, p.height / 2 + 100);
       p.beginShape();
-      for (let x = 100; x < p.width - 100; x += 50) {
+      for (let x = 200; x < p.width - 200; x += 50) { // Adjusted for wider canvas
         p.vertex(x, y + p.random(-5, 5));
       }
       p.endShape();
@@ -74,7 +74,7 @@ export const stage2 = function (p) {
     p.drawingContext.shadowColor = p.color(0, 255, 0);
     p.stroke(0, 255, 0);
     p.strokeWeight(3);
-    p.line(100, lineY, p.width - 100, lineY);
+    p.line(200, lineY, p.width - 200, lineY); // Adjusted for wider canvas
     p.pop();
 
     // Draw marker (target position)

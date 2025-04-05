@@ -8,7 +8,12 @@ export const gameState = {
   stageStartTime: 0,
   roundTimeLimit: 0,
 
-  // Asset references
+  // Asset references with actual file paths
+  assetPaths: {
+    logoPath: "Logo_Final.jpg",
+    glitchSoundPath: "glitch-sounds.mp3",
+    glitchButtonPath: "glitch-button.mp3"
+  },
   logo: null,
   glitchSound: null,
   glitchButton: null,
@@ -20,9 +25,29 @@ export const gameState = {
   },
 
   loadAssets(logo, glitchSound, glitchButton) {
+    // Store the loaded assets passed from p5's preload
     this.logo = logo;
     this.glitchSound = glitchSound;
     this.glitchButton = glitchButton;
+
+    console.log("Assets loaded into gameState:",
+      this.logo ? "Logo loaded" : "Logo missing",
+      this.glitchSound ? "Glitch sound loaded" : "Glitch sound missing",
+      this.glitchButton ? "Glitch button loaded" : "Glitch button missing");
+  },
+
+  // Helper method to play sounds safely
+  playSound(sound) {
+    if (sound && typeof sound.play === 'function' && !sound.isPlaying()) {
+      sound.play();
+    }
+  },
+
+  // Helper method to stop sounds safely
+  stopSound(sound) {
+    if (sound && typeof sound.stop === 'function' && sound.isPlaying()) {
+      sound.stop();
+    }
   },
 
   getCurrentStage() {

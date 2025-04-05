@@ -82,8 +82,9 @@ export function initializeP5Game() {
     // Assets
     let logo, glitchSound, glitchButton;
 
-    function preload() {
-      logo = p.loadImage("Logo_Final.png");
+    // Assign the preload function to the p5 instance
+    p.preload = function () {
+      logo = p.loadImage("Logo_Final.jpg");
       glitchSound = p.loadSound("glitch-sounds.mp3");
       glitchButton = p.loadSound("glitch-button.mp3");
     }
@@ -122,7 +123,7 @@ export function initializeP5Game() {
     // Global Draw & Interaction
     // ============================
     p.setup = function () {
-      p.createCanvas(800, 800);
+      p.createCanvas(1200, 800); // Increased width from 800 to 1200 for better text display
       p.textFont("Courier New");
       p.textAlign(p.CENTER, p.CENTER);
 
@@ -168,11 +169,13 @@ export function initializeP5Game() {
       let startTime = uiInstance.startTime;
       let glitchDuration = uiInstance.getGlitchDuration();
       if (p.millis() - startTime < glitchDuration) {
-        if (!glitchSound.isPlaying()) glitchSound.play();
+        // Add null check for glitchSound before calling isPlaying() and play()
+        if (glitchSound && !glitchSound.isPlaying()) glitchSound.play();
         uiInstance.drawGlitchScreen();
         return;
       } else {
-        if (glitchSound.isPlaying()) glitchSound.stop();
+        // Add null check for glitchSound before calling isPlaying() and stop()
+        if (glitchSound && glitchSound.isPlaying()) glitchSound.stop();
 
         // Make sure stage is properly initialized when glitch ends
         if (p.millis() - startTime < glitchDuration + 100) { // Small buffer to catch the transition
@@ -183,7 +186,10 @@ export function initializeP5Game() {
       // Main game screen
       p.background(10);
       p.tint(255, 50);
-      p.image(logo, 0, 60, 800, 600);
+      // Add null check for logo before trying to draw it
+      if (logo && logo.width > 0) {
+        p.image(logo, 0, 60, 1200, 600); // Adjusted width from 800 to 1200
+      }
       p.noTint();
 
       // Draw UI elements
@@ -264,7 +270,7 @@ export function initializeP5Game() {
     };
 
     p.windowResized = function () {
-      p.resizeCanvas(800, 800);
+      p.resizeCanvas(1200, 800); // Adjusted width from 800 to 1200
     };
 
   }, 'gameCanvas');

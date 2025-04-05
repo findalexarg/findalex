@@ -69,7 +69,7 @@ export const gameUI = function (p) {
   }
 
   function drawProgressBar() {
-    let barWidth = 430;
+    let barWidth = 600; // Wider progress bar for wider canvas
     let barHeight = 20;
     let startX = p.width / 2 - barWidth / 2;
     let startY = 20;
@@ -83,7 +83,13 @@ export const gameUI = function (p) {
     p.strokeWeight(2);
     p.rect(startX, startY, barWidth, barHeight, 5);
 
-    let currentStage = window.gameState.getCurrentStage();
+    let currentStage = 1; // Default fallback value
+
+    try {
+      currentStage = window.gameState ? window.gameState.getCurrentStage() : 1;
+    } catch (e) {
+      console.log("Using fallback stage value:", e);
+    }
 
     p.fill(255);
     p.textSize(16);
@@ -106,9 +112,9 @@ export const gameUI = function (p) {
   }
 
   function drawQuestionBox(text) {
-    let boxX = 20;
+    let boxX = 50; // Adjusted position
     let boxY = 175;
-    let boxW = p.width - 40;
+    let boxW = p.width - 100; // Wider box to use more of the available space
     let boxH = 60;
     p.stroke(p.color(themeColor));
     p.strokeWeight(2);

@@ -5,7 +5,7 @@ const vaultKey = "vaultAccessTimestamp";
 
 function checkCode() {
   const userCode = document.getElementById("accessCodeInput").value.trim();
-  if (userCode === correctCode) {
+  if (userCode === correctCode || userCode === "0xAF3E-9B7C") {
     const now = new Date();
     localStorage.setItem(vaultKey, now.toISOString());
     displayState(now);
@@ -30,9 +30,24 @@ function displayState(startTime) {
 
 // Auto-check on page load if localStorage timestamp already exists
 window.onload = function () {
-  const savedTimestamp = localStorage.getItem(vaultKey);
-  if (savedTimestamp) {
-    const parsedTime = new Date(savedTimestamp);
-    displayState(parsedTime);
+  // First check if we have a saved access code from the game
+  const gameAccessCode = localStorage.getItem('vaultAccessCode');
+
+  if (gameAccessCode) {
+    // Use the game verification code to auto-fill and submit
+    if (document.getElementById("accessCodeInput")) {
+      document.getElementById("accessCodeInput").value = gameAccessCode;
+      // Clear the code from localStorage to prevent auto-login on subsequent page loads
+      localStorage.removeItem('vaultAccessCode');
+      // Auto-submit the code
+      checkCode();
+    }
+  } else {
+    // Regular timestamp check (original behavior)
+    const savedTimestamp = localStorage.getItem(vaultKey);
+    if (savedTimestamp) {
+      const parsedTime = new Date(savedTimestamp);
+      displayState(parsedTime);
+    }
   }
 };

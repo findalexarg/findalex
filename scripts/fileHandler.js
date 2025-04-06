@@ -67,10 +67,88 @@ export function triggerFinalUploadEmail() {
     });
 }
 
+// Function to show reload content button
+function showReloadContentButton(verificationCode) {
+  const selectedFilesDiv = document.getElementById('selectedFiles');
+  if (selectedFilesDiv) {
+    selectedFilesDiv.innerHTML = `
+      <div class="evidence-verified success">
+        <h3>SYSTEM SECURITY BREACHED</h3>
+        <p>Security challenges completed successfully.</p>
+        <p>Verification Code: <strong>${verificationCode}</strong></p>
+        <button class="reload-btn" onclick="redirectToVault('${verificationCode}')">RELOAD CONTENT</button>
+      </div>
+    `;
+
+    // Add the necessary styling
+    const style = document.createElement('style');
+    style.textContent = `
+      .evidence-verified.success {
+        background-color: rgba(0, 30, 0, 0.8);
+        border: 2px solid #0f0;
+        padding: 20px;
+        color: #0f0;
+        text-align: center;
+        margin-top: 20px;
+        box-shadow: 0 0 15px #0f0;
+        animation: glow 2s infinite alternate;
+      }
+      
+      @keyframes glow {
+        from {
+          box-shadow: 0 0 10px #0f0;
+        }
+        to {
+          box-shadow: 0 0 20px #0f0, 0 0 30px #0f0;
+        }
+      }
+
+      .reload-btn {
+        background-color: #0f0;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        margin-top: 15px;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .reload-btn:hover {
+        background-color: #fff;
+        box-shadow: 0 0 15px #fff;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Add the redirect function to the global scope
+    window.redirectToVault = function (code) {
+      // Store the code in localStorage to be used by vault.html
+      localStorage.setItem('vaultAccessCode', code);
+      // Redirect to vault.html
+      window.location.href = 'vault.html';
+    };
+  }
+}
+
 // Initialize file handling functionality when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById('fileInput');
   const selectedFilesDiv = document.getElementById('selectedFiles');
+
+  // Check if we already have a verification code from a completed game
+  const savedCode = localStorage.getItem('verificationCode');
+  if (savedCode) {
+    showReloadContentButton(savedCode);
+  }
+
+  // Listen for the game completed event
+  document.addEventListener('gamesCompleted', function (event) {
+    const verificationCode = event.detail.verificationCode;
+    console.log("Games completed with verification code:", verificationCode);
+    showReloadContentButton(verificationCode);
+  });
 
   if (fileInput) {
     fileInput.addEventListener('change', function () {
@@ -104,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function handleFileSubmission(files) {
     // Show a verification message
-    selectedFilesDiv.innerHTML = '<div class="evidence-verified"><h3>Evidence Received</h3><p>Thank you for your submission. Your evidence is being processed.</p><button class="reload-btn" onclick="location.reload()">Submit More Evidence</button></div>';
+    selectedFilesDiv.innerHTML = '<div class="evidence-verified"><h3>Evidence Received</h3><p>Thank you for your submission. Your evidence is being processed.</p></div>';
 
     // Verify files and launch the game popup
     verifyAndLaunchGame(files);

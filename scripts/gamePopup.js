@@ -346,6 +346,15 @@ export function closeGamePopup() {
     `;
     document.head.appendChild(completionStyle);
 
+    // Save the verification code to localStorage
+    localStorage.setItem('verificationCode', '0xAF3E-9B7C');
+
+    // Dispatch an event to notify that games are completed
+    const gameCompletedEvent = new CustomEvent('gamesCompleted', {
+      detail: { verificationCode: '0xAF3E-9B7C' }
+    });
+    document.dispatchEvent(gameCompletedEvent);
+
     // Fade out after 3 seconds
     setTimeout(() => {
       gameContainer.style.opacity = '0';

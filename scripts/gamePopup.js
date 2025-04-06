@@ -1,277 +1,365 @@
-// Game Popup Module
-import { gameState } from './gameState.js';
-import { gameUtils } from './gameUtils.js';
-import { stage1 } from './stage1.js';
-import { stage2 } from './stage2.js';
-import { stage3 } from './stage3.js';
-import { stage4 } from './stage4.js';
-import { gameUI } from './gameUI.js';
+// gamePopup.js - Handles launching the game popup when evidence is submitted
+import { initGame } from './games.js';
 
-// Function to launch the p5.js game popup
-export function launchGamePopup(verificationMessage = '') {
-  // Create the popup container - make it fullscreen
-  const popupOverlay = document.createElement('div');
-  popupOverlay.className = 'popup-overlay';
+let gameInstance = null;
 
-  // Create the game container
-  const gameContainer = document.createElement('div');
-  gameContainer.className = 'game-container';
+// Function to launch the game popup
+export function launchGamePopup(message) {
+  console.log("Launching game popup:", message);
 
-  // Create header without close button (for this version)
-  const gameHeader = document.createElement('div');
-  gameHeader.className = 'game-header';
+  // Create game container if it doesn't exist
+  let gameContainer = document.getElementById('gameContainer');
+  if (!gameContainer) {
+    gameContainer = document.createElement('div');
+    gameContainer.id = 'gameContainer';
+    gameContainer.className = 'game-popup';
 
-  const gameTitle = document.createElement('h3');
-  gameTitle.textContent = 'YOU HAVE BEEN HACKED';
+    // Create hacker intrusion header
+    const hackedHeader = document.createElement('div');
+    hackedHeader.className = 'hacked-header';
+    hackedHeader.innerHTML = '<span class="glitch-text" data-text="YOU\'VE BEEN HACKED">YOU\'VE BEEN HACKED</span>';
+    gameContainer.appendChild(hackedHeader);
 
-  // If we have a verification message, show it
-  if (verificationMessage) {
-    const verificationDiv = document.createElement('div');
-    verificationDiv.className = 'verification-message';
-    verificationDiv.textContent = verificationMessage;
-    gameHeader.appendChild(verificationDiv);
+    // Create warning message
+    const warningMessage = document.createElement('div');
+    warningMessage.className = 'warning-message';
+    warningMessage.innerHTML = 'COMPLETE ALL SECURITY CHALLENGES TO REGAIN ACCESS';
+    gameContainer.appendChild(warningMessage);
+
+    // Create game canvas container
+    const canvasContainer = document.createElement('div');
+    canvasContainer.id = 'gameCanvasContainer';
+    gameContainer.appendChild(canvasContainer);
+
+    // Create flashing elements for added effect
+    for (let i = 0; i < 5; i++) {
+      const flashingElement = document.createElement('div');
+      flashingElement.className = 'hacker-element element-' + i;
+      gameContainer.appendChild(flashingElement);
+    }
+
+    // Add some random binary streams to the background
+    const binaryStream = document.createElement('div');
+    binaryStream.className = 'binary-stream';
+    let binaryContent = '';
+    for (let i = 0; i < 500; i++) {
+      binaryContent += Math.random() > 0.5 ? '1' : '0';
+      if (i % 50 === 0) binaryContent += '<br>';
+    }
+    binaryStream.innerHTML = binaryContent;
+    gameContainer.appendChild(binaryStream);
+
+    document.body.appendChild(gameContainer);
+
+    // Play an alarm sound
+    const alarmSound = new Audio('glitch-sounds.mp3');
+    alarmSound.play();
+
+    // Add styling for the game popup
+    const style = document.createElement('style');
+    style.textContent = `
+      .game-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        background-image: 
+          linear-gradient(0deg, rgba(0,20,0,0.7) 50%, transparent 50%),
+          linear-gradient(90deg, rgba(0,20,0,0.7) 50%, transparent 50%);
+        background-size: 4px 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        overflow: hidden;
+        animation: backgroundPulse 4s infinite;
+      }
+      
+      @keyframes backgroundPulse {
+        0% { background-color: #000; }
+        25% { background-color: #001200; }
+        50% { background-color: #001800; }
+        75% { background-color: #001200; }
+        100% { background-color: #000; }
+      }
+      
+      .hacked-header {
+        color: #f00;
+        font-family: 'Courier New', monospace;
+        font-size: 48px;
+        font-weight: bold;
+        text-shadow: 0 0 10px #f00, 0 0 20px #f00;
+        margin-bottom: 20px;
+        letter-spacing: 2px;
+        animation: textPulse 1s infinite;
+      }
+      
+      @keyframes textPulse {
+        0% { text-shadow: 0 0 10px #f00, 0 0 20px #f00; }
+        50% { text-shadow: 0 0 20px #f00, 0 0 30px #f00, 0 0 40px #f00; }
+        100% { text-shadow: 0 0 10px #f00, 0 0 20px #f00; }
+      }
+      
+      .glitch-text {
+        position: relative;
+        display: inline-block;
+        animation: glitch 3s infinite;
+      }
+      
+      .glitch-text::before,
+      .glitch-text::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      
+      .glitch-text::before {
+        left: -2px;
+        text-shadow: 2px 0 #00f;
+        clip: rect(44px, 450px, 56px, 0);
+        animation: glitch-anim 5s infinite linear alternate-reverse;
+      }
+      
+      .glitch-text::after {
+        left: 2px;
+        text-shadow: -2px 0 #f0f;
+        clip: rect(44px, 450px, 56px, 0);
+        animation: glitch-anim2 5s infinite linear alternate-reverse;
+      }
+      
+      @keyframes glitch {
+        0% { transform: none; opacity: 1; }
+        7% { transform: skew(-0.5deg, -0.9deg); opacity: 0.75; }
+        10% { transform: none; opacity: 1; }
+        27% { transform: none; opacity: 1; }
+        30% { transform: skew(0.8deg, -0.1deg); opacity: 0.75; }
+        35% { transform: none; opacity: 1; }
+        52% { transform: none; opacity: 1; }
+        55% { transform: skew(-1deg, 0.2deg); opacity: 0.75; }
+        50% { transform: none; opacity: 1; }
+        72% { transform: none; opacity: 1; }
+        75% { transform: skew(0.4deg, 1deg); opacity: 0.75; }
+        80% { transform: none; opacity: 1; }
+        100% { transform: none; opacity: 1; }
+      }
+      
+      @keyframes glitch-anim {
+        0% { clip: rect(77px, 9999px, 39px, 0); }
+        5% { clip: rect(65px, 9999px, 36px, 0); }
+        10% { clip: rect(37px, 9999px, 92px, 0); }
+        15% { clip: rect(80px, 9999px, 23px, 0); }
+        20% { clip: rect(94px, 9999px, 37px, 0); }
+        25% { clip: rect(49px, 9999px, 10px, 0); }
+        30% { clip: rect(16px, 9999px, 86px, 0); }
+        35% { clip: rect(6px, 9999px, 79px, 0); }
+        40% { clip: rect(96px, 9999px, 61px, 0); }
+        45% { clip: rect(82px, 9999px, 83px, 0); }
+        50% { clip: rect(46px, 9999px, 2px, 0); }
+        55% { clip: rect(10px, 9999px, 86px, 0); }
+        60% { clip: rect(54px, 9999px, 81px, 0); }
+        65% { clip: rect(35px, 9999px, 44px, 0); }
+        70% { clip: rect(92px, 9999px, 90px, 0); }
+        75% { clip: rect(75px, 9999px, 71px, 0); }
+        80% { clip: rect(7px, 9999px, 43px, 0); }
+        85% { clip: rect(42px, 9999px, 4px, 0); }
+        90% { clip: rect(95px, 9999px, 67px, 0); }
+        95% { clip: rect(5px, 9999px, 46px, 0); }
+        100% { clip: rect(29px, 9999px, 21px, 0); }
+      }
+      
+      @keyframes glitch-anim2 {
+        0% { clip: rect(85px, 9999px, 96px, 0); }
+        5% { clip: rect(31px, 9999px, 54px, 0); }
+        10% { clip: rect(49px, 9999px, 30px, 0); }
+        15% { clip: rect(67px, 9999px, 16px, 0); }
+        20% { clip: rect(26px, 9999px, 48px, 0); }
+        25% { clip: rect(31px, 9999px, 71px, 0); }
+        30% { clip: rect(42px, 9999px, 1px, 0); }
+        35% { clip: rect(8px, 9999px, 14px, 0); }
+        40% { clip: rect(83px, 9999px, 48px, 0); }
+        45% { clip: rect(64px, 9999px, 77px, 0); }
+        50% { clip: rect(96px, 9999px, 2px, 0); }
+        55% { clip: rect(39px, 9999px, 87px, 0); }
+        60% { clip: rect(21px, 9999px, 46px, 0); }
+        65% { clip: rect(89px, 9999px, 40px, 0); }
+        70% { clip: rect(84px, 9999px, 91px, 0); }
+        75% { clip: rect(3px, 9999px, 29px, 0); }
+        80% { clip: rect(35px, 9999px, 73px, 0); }
+        85% { clip: rect(10px, 9999px, 93px, 0); }
+        90% { clip: rect(54px, 9999px, 47px, 0); }
+        95% { clip: rect(88px, 9999px, 8px, 0); }
+        100% { clip: rect(97px, 9999px, 69px, 0); }
+      }
+      
+      .warning-message {
+        color: #0f0;
+        font-family: 'Courier New', monospace;
+        font-size: 18px;
+        font-weight: bold;
+        text-shadow: 0 0 5px #0f0;
+        margin-bottom: 30px;
+        padding: 10px;
+        border: 2px solid #0f0;
+        border-radius: 5px;
+        background-color: rgba(0, 20, 0, 0.7);
+        box-shadow: 0 0 10px #0f0;
+        animation: borderPulse 2s infinite;
+      }
+      
+      @keyframes borderPulse {
+        0% { box-shadow: 0 0 10px #0f0; }
+        50% { box-shadow: 0 0 20px #0f0, 0 0 30px #0f0; }
+        100% { box-shadow: 0 0 10px #0f0; }
+      }
+      
+      .hacker-element {
+        position: absolute;
+        background-color: rgba(0, 255, 0, 0.1);
+        animation: flashRandomly 0.5s infinite;
+      }
+      
+      .element-0 {
+        top: 20%;
+        left: 10%;
+        width: 150px;
+        height: 15px;
+      }
+      
+      .element-1 {
+        top: 40%;
+        right: 10%;
+        width: 80px;
+        height: 150px;
+      }
+      
+      .element-2 {
+        bottom: 30%;
+        left: 30%;
+        width: 40px;
+        height: 40px;
+      }
+      
+      .element-3 {
+        top: 70%;
+        right: 30%;
+        width: 100px;
+        height: 25px;
+      }
+      
+      .element-4 {
+        top: 10%;
+        right: 40%;
+        width: 30px;
+        height: 80px;
+      }
+      
+      @keyframes flashRandomly {
+        0% { opacity: 0.1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 0.1; }
+      }
+      
+      .binary-stream {
+        position: absolute;
+        color: rgba(0, 255, 0, 0.2);
+        font-family: monospace;
+        font-size: 10px;
+        line-height: 1;
+        z-index: -1;
+        pointer-events: none;
+      }
+      
+      #gameCanvasContainer {
+        position: relative;
+        width: 800px;
+        height: 800px;
+        border: 3px solid #0f0;
+        box-shadow: 0 0 30px #0f0;
+        background-color: rgba(0, 20, 0, 0.2);
+        overflow: hidden;
+      }
+      
+      #gameCanvasContainer:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #0f0;
+        animation: scanline 10s linear infinite;
+        opacity: 0.5;
+        z-index: 999;
+        pointer-events: none;
+      }
+      
+      @keyframes scanline {
+        0% { top: 0; }
+        100% { top: 100%; }
+      }
+    `;
+    document.head.appendChild(style);
   }
 
-  gameHeader.appendChild(gameTitle);
+  // Make the game container visible
+  gameContainer.style.display = 'flex';
 
-  // Canvas for p5.js game
-  const gameCanvas = document.createElement('div');
-  gameCanvas.id = 'gameCanvas';
-
-  // Add all elements to the DOM
-  gameContainer.appendChild(gameHeader);
-  gameContainer.appendChild(gameCanvas);
-  popupOverlay.appendChild(gameContainer);
-  document.body.appendChild(popupOverlay);
-
-  // IMPORTANT: Make sure p5.js library is loaded and asset paths are correct!
-  initializeP5Game();
+  // Initialize the P5.js game
+  initGame('gameCanvasContainer');
 }
 
-// Function to initialize the p5.js game
-export function initializeP5Game() {
-  // Make sure p5.js is loaded
-  if (typeof p5 === 'undefined') {
-    console.error('p5.js is not loaded! Add the script tag to your HTML file.');
-    alert('Error: Required library not loaded. Please try again later.');
-    return;
-  }
+// Modified close function to be called when game completes
+export function closeGamePopup() {
+  const gameContainer = document.getElementById('gameContainer');
+  if (gameContainer) {
+    // Show completion message
+    const completionMessage = document.createElement('div');
+    completionMessage.className = 'completion-message';
+    completionMessage.innerHTML = '<span>SECURITY CHALLENGES COMPLETED</span><br><span>SYSTEM RECOVERY IN PROGRESS...</span>';
+    gameContainer.appendChild(completionMessage);
 
-  console.log('Creating p5 instance...');
-
-  // Create a new p5 instance with your game code
-  window.p5Instance = new p5(function (p) {
-    // Game variables
-    let started = false;
-    let finalScreen = false;
-    let questionText = "";
-
-    // Game state variables - these are now managed by gameState.js
-    let currentStage = 1;
-    let stageStartTime = 0;
-
-    // Stage instances
-    let stage1Instance, stage2Instance, stage3Instance, stage4Instance;
-
-    // UI component
-    let uiInstance;
-
-    // Utilities
-    let utilsInstance;
-
-    // Assets
-    let logo, glitchSound, glitchButton;
-
-    // Assign the preload function to the p5 instance
-    p.preload = function () {
-      logo = p.loadImage("Logo_Final.jpg");
-      glitchSound = p.loadSound("glitch-sounds.mp3");
-      glitchButton = p.loadSound("glitch-button.mp3");
-    }
-
-    // ============================
-    // Global Stage Initialization & Transition
-    // ============================
-    function initStage() {
-      // Reset round count
-      gameState.setRoundCount(0);
-
-      // Configure stage-specific settings
-      if (currentStage === 1) {
-        gameState.setRoundTimeLimit(10000); // Longer time for stage 1
-        stage1Instance.initRound();
-        questionText = "Stage 1: Memorize the path (5 rounds)";
-      } else if (currentStage === 2) {
-        gameState.setRoundTimeLimit(5000); // More time for stage 2
-        stage2Instance.initRound();
-        questionText = "Stage 2: Stop the moving target (5 rounds)";
-      } else if (currentStage === 3) {
-        gameState.setRoundTimeLimit(10000); // Longer time for the harder path
-        stage3Instance.initRound();
-        questionText = "Stage 3: Memorize the complex path (5 rounds)";
-      } else if (currentStage === 4) {
-        gameState.setRoundTimeLimit(20000); // Plenty of time for word unscramble
-        stage4Instance.init();
-        questionText = "Stage 4: Decrypt the message";
+    // Add completion message style
+    const completionStyle = document.createElement('style');
+    completionStyle.textContent = `
+      .completion-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        padding: 30px;
+        border: 2px solid #0f0;
+        color: #0f0;
+        font-family: 'Courier New', monospace;
+        font-size: 24px;
+        text-align: center;
+        line-height: 1.5;
+        box-shadow: 0 0 20px #0f0;
+        z-index: 1001;
       }
+    `;
+    document.head.appendChild(completionStyle);
 
-      // Set stage start time
-      gameState.setStageStartTime(p.millis());
-    }
+    // Fade out after 3 seconds
+    setTimeout(() => {
+      gameContainer.style.opacity = '0';
+      gameContainer.style.transition = 'opacity 2s';
 
-    // ============================
-    // Global Draw & Interaction
-    // ============================
-    p.setup = function () {
-      p.createCanvas(1200, 800); // Increased width from 800 to 1200 for better text display
-      p.textFont("Courier New");
-      p.textAlign(p.CENTER, p.CENTER);
+      // Remove after fade out
+      setTimeout(() => {
+        gameContainer.remove();
 
-      // Initialize gameState with the p5 instance
-      gameState.initialize(p);
-      gameState.loadAssets(logo, glitchSound, glitchButton);
-      gameState.setCurrentStage(1);
-
-      // Create instances of each stage module
-      stage1Instance = stage1(p);
-      stage2Instance = stage2(p);
-      stage3Instance = stage3(p);
-      stage4Instance = stage4(p);
-
-      // Create UI instance
-      uiInstance = gameUI(p);
-
-      // Create utils instance
-      utilsInstance = gameUtils(p);
-
-      // Initialize the first stage
-      initStage();
-    };
-
-    p.draw = function () {
-      // Current stage from game state
-      currentStage = gameState.getCurrentStage();
-
-      // Check if game is completed
-      finalScreen = gameState.completed;
-
-      if (finalScreen) {
-        uiInstance.drawFinalScreen();
-        return;
-      }
-
-      if (!started) {
-        uiInstance.drawStartScreen();
-        return;
-      }
-
-      // Check if still in glitch phase
-      let startTime = uiInstance.startTime;
-      let glitchDuration = uiInstance.getGlitchDuration();
-      if (p.millis() - startTime < glitchDuration) {
-        // Add null check for glitchSound before calling isPlaying() and play()
-        if (glitchSound && !glitchSound.isPlaying()) glitchSound.play();
-        uiInstance.drawGlitchScreen();
-        return;
-      } else {
-        // Add null check for glitchSound before calling isPlaying() and stop()
-        if (glitchSound && glitchSound.isPlaying()) glitchSound.stop();
-
-        // Make sure stage is properly initialized when glitch ends
-        if (p.millis() - startTime < glitchDuration + 100) { // Small buffer to catch the transition
-          gameState.setStageStartTime(p.millis()); // Reset stage timer at exact moment glitch screen ends
+        // Clean up any game resources if needed
+        if (gameInstance && typeof gameInstance.remove === 'function') {
+          gameInstance.remove();
         }
-      }
-
-      // Main game screen
-      p.background(10);
-      p.tint(255, 50);
-      // Add null check for logo before trying to draw it
-      if (logo && logo.width > 0) {
-        p.image(logo, 0, 60, 1200, 600); // Adjusted width from 800 to 1200
-      }
-      p.noTint();
-
-      // Draw UI elements
-      uiInstance.drawProgressBar();
-      uiInstance.drawTitle();
-      uiInstance.drawQuestionBox(questionText);
-
-      // Check round timeout
-      if (gameState.isTimeExpired()) {
-        gameState.setRoundCount(0);
-
-        // Reset the current stage
-        if (currentStage === 1) stage1Instance.initRound();
-        else if (currentStage === 2) stage2Instance.initRound();
-        else if (currentStage === 3) stage3Instance.initRound();
-        else if (currentStage === 4) stage4Instance.init();
-
-        gameState.setStageStartTime(p.millis());
-      }
-
-      // Draw the current stage
-      if (currentStage === 1) {
-        stage1Instance.draw();
-      } else if (currentStage === 2) {
-        stage2Instance.update();
-        stage2Instance.draw();
-      } else if (currentStage === 3) {
-        stage3Instance.draw();
-      } else if (currentStage === 4) {
-        stage4Instance.draw();
-      }
-
-      // Display round count if applicable
-      p.fill(255);
-      p.textSize(18);
-      if (currentStage < 4) p.text("Stage " + currentStage + " Round " + (gameState.getRoundCount() + 1) + "/5", 70, 30);
-      else p.text("Stage 4", 70, 30);
-    };
-
-    p.mousePressed = function () {
-      p.getAudioContext().resume();
-
-      if (!started) {
-        started = true;
-        uiInstance.setStartTime(p.millis());
-        return;
-      }
-
-      let startTime = uiInstance.startTime;
-      let glitchDuration = uiInstance.getGlitchDuration();
-      if (p.millis() - startTime < glitchDuration) return;
-      if (finalScreen) return;
-
-      // Handle clicks for the current stage
-      if (currentStage === 1) {
-        stage1Instance.handleClick();
-      } else if (currentStage === 2) {
-        stage2Instance.handleStop();
-      } else if (currentStage === 3) {
-        stage3Instance.handleClick();
-      } else if (currentStage === 4) {
-        stage4Instance.handleClick();
-      }
-    };
-
-    p.keyPressed = function () {
-      if (finalScreen) {
-        gameState.setCurrentStage(1);
-        gameState.completed = false;
-        finalScreen = false;
-        initStage();
-        return;
-      }
-      // In Stage 2, allow space bar to stop the moving target.
-      if (currentStage === 2 && p.key === ' ') {
-        stage2Instance.handleStop();
-      }
-    };
-
-    p.windowResized = function () {
-      p.resizeCanvas(1200, 800); // Adjusted width from 800 to 1200
-    };
-
-  }, 'gameCanvas');
+      }, 2000);
+    }, 3000);
+  }
 }

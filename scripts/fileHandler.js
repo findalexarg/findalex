@@ -26,13 +26,6 @@ export function verifyAndLaunchGame(files) {
     console.log("Verifying file type:", file.type);
     if (validFileTypes.includes(file.type)) {
       hasValidFile = true;
-
-      // You can customize fileTypeMessage based on file name/type if needed.
-      if (file.name.toLowerCase().includes('evidence') || file.type.startsWith('image/')) {
-        fileTypeMessage = 'Image evidence detected';
-      } else if (file.type === 'application/pdf' || file.type.includes('document')) {
-        fileTypeMessage = 'Document evidence detected';
-      }
     }
   }
 

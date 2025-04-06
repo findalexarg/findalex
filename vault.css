@@ -44,3 +44,18 @@
   font-family: monospace;
   margin-top: 0.5em;
 }
+
+.hidden {
+  display: none;
+}
+
+.article-evidence {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.article-image {
+  max-width: 100%;
+  border: 1px solid #0f0;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}

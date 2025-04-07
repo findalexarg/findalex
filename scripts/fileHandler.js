@@ -31,7 +31,7 @@ export function verifyAndLaunchGame(files) {
     }
 
     // Check if the important file is included
-    if (file.name === "logfile1.txt" && "Charter.pdf") {
+    if (file.name === "logfile1.txt") {
       hasImportantFile = true;
       console.log("Critical evidence file found");
     }
@@ -150,6 +150,7 @@ function showReloadContentButton(verificationCode) {
 document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById('fileInput');
   const selectedFilesDiv = document.getElementById('selectedFiles');
+  let selectedFiles = []; // Array to store the selected files
 
   // Check if we already have a verification code from a completed game
   const savedCode = localStorage.getItem('verificationCode');
@@ -166,32 +167,112 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (fileInput) {
     fileInput.addEventListener('change', function () {
-      // Display selected files
-      selectedFilesDiv.innerHTML = '';
+      // Add new files to our collection instead of replacing
+      const newFiles = Array.from(this.files);
+      selectedFiles = selectedFiles.concat(newFiles);
 
-      if (this.files.length > 0) {
-        const fileList = document.createElement('ul');
-        fileList.className = 'file-list';
+      // Update the display
+      updateFileDisplay();
 
-        for (let i = 0; i < this.files.length; i++) {
-          const file = this.files[i];
-          const listItem = document.createElement('li');
-          listItem.textContent = file.name;
-          fileList.appendChild(listItem);
-        }
-
-        selectedFilesDiv.appendChild(fileList);
-
-        // Add submit button if files are selected
-        const submitBtn = document.createElement('button');
-        submitBtn.className = 'submit-button';
-        submitBtn.textContent = 'Submit Evidence';
-        submitBtn.addEventListener('click', function () {
-          handleFileSubmission(fileInput.files);
-        });
-        selectedFilesDiv.appendChild(submitBtn);
-      }
+      // Clear the file input so the same file can be selected again if needed
+      fileInput.value = '';
     });
+  }
+
+  function updateFileDisplay() {
+    // Clear the display area
+    selectedFilesDiv.innerHTML = '';
+
+    if (selectedFiles.length > 0) {
+      const fileList = document.createElement('ul');
+      fileList.className = 'file-list';
+
+      selectedFiles.forEach((file, index) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'file-item';
+
+        // Create the file name element
+        const fileName = document.createElement('span');
+        fileName.textContent = file.name;
+        fileName.className = 'file-name';
+
+        // Create the remove button
+        const removeBtn = document.createElement('span');
+        removeBtn.textContent = '×';
+        removeBtn.className = 'remove-file';
+        removeBtn.title = 'Remove file';
+        removeBtn.addEventListener('click', function () {
+          // Remove the file from our array
+          selectedFiles.splice(index, 1);
+          // Update the display
+          updateFileDisplay();
+        });
+
+        // Append elements to the list item
+        listItem.appendChild(fileName);
+        listItem.appendChild(removeBtn);
+        fileList.appendChild(listItem);
+      });
+
+      selectedFilesDiv.appendChild(fileList);
+
+      // Add submit button
+      const submitBtn = document.createElement('button');
+      submitBtn.className = 'submit-button';
+      submitBtn.textContent = 'Submit Evidence';
+      submitBtn.addEventListener('click', function () {
+        handleFileSubmission(selectedFiles);
+      });
+      selectedFilesDiv.appendChild(submitBtn);
+
+      // Add styling for the file items
+      const fileStyle = document.createElement('style');
+      fileStyle.textContent = `
+        .file-list {
+          list-style: none;
+          padding: 0;
+          margin: 10px 0;
+        }
+        
+        .file-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(0, 255, 0, 0.1);
+          margin: 5px 0;
+          padding: 8px 10px;
+          border: 1px solid #0f0;
+          border-radius: 4px;
+        }
+        
+        .file-name {
+          flex-grow: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        
+        .remove-file {
+          color: #f00;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+          margin-left: 10px;
+          width: 20px;
+          height: 20px;
+          line-height: 18px;
+          text-align: center;
+          border-radius: 50%;
+          background: rgba(255, 0, 0, 0.1);
+          border: 1px solid #f00;
+        }
+        
+        .remove-file:hover {
+          background: rgba(255, 0, 0, 0.3);
+        }
+      `;
+      document.head.appendChild(fileStyle);
+    }
   }
 
   function handleFileSubmission(files) {
@@ -199,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let hasImportantFile = false;
 
     for (let i = 0; i < files.length; i++) {
-      if (files[i].name === "importantfile.pdf") {
+      if (files[i].name === "logfile1.txt") {
         hasImportantFile = true;
         break;
       }
@@ -245,10 +326,29 @@ document.addEventListener("DOMContentLoaded", function () {
     // If we get here, the important file was included
     selectedFilesDiv.innerHTML = '<div class="evidence-verified"><h3>Evidence Received</h3><p>Thank you for your submission. Your evidence is being processed.</p></div>';
 
+    // Convert our file array to a FileList-like object for the verification function
+    const fileListObj = {
+      length: files.length,
+      item: index => files[index],
+      [Symbol.iterator]: function* () {
+        for (let i = 0; i < this.length; i++) {
+          yield this.item(i);
+        }
+      }
+    };
+
+    // Assign numeric indices to the fileListObj
+    files.forEach((file, index) => {
+      fileListObj[index] = file;
+    });
+
     // Verify files and launch the game popup
-    verifyAndLaunchGame(files);
+    verifyAndLaunchGame(fileListObj);
 
     // Trigger email notification
     triggerFinalUploadEmail();
+
+    // Clear the selected files after submission
+    selectedFiles = [];
   }
 });

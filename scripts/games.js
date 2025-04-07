@@ -451,7 +451,7 @@ export function initGame(containerId) {
     };
 
     p.handleStage3Click = function () {
-      let gridSize = 400;
+      let gridSize = 300; // Changed from 400 to 300 to match drawStage3
       let startX = p.width / 2 - gridSize / 2;
       let startY = p.height / 2 - gridSize / 2;
       let cellSize = gridSize / p.stage3_gridCols;
@@ -482,7 +482,7 @@ export function initGame(containerId) {
             } else {
               // Provide visual feedback for incorrect attempt
               p.fill(255, 0, 0, 150);
-              let gridSize = 400;
+              let gridSize = 300; // Changed from 400 to 300 to match the drawing
               let startX = p.width / 2 - gridSize / 2;
               let startY = p.height / 2 - gridSize / 2;
               p.rect(startX, startY, gridSize, gridSize);

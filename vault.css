@@ -59,3 +59,22 @@
   border: 1px solid #0f0;
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
+
+/* Reload button specific styling */
+.reload-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 8px 16px;
+  background-color: #000;
+  color: #0f0;
+  border: 2px solid #0f0;
+  font-family: monospace;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.reload-button:hover {
+  background-color: #030;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}

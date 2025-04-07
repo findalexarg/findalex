@@ -81,7 +81,7 @@ export function triggerFinalUploadEmail() {
     });
 }
 
-// Function to show reload content button
+// Function to show reload content button with passcode prompt
 function showReloadContentButton(verificationCode) {
   const selectedFilesDiv = document.getElementById('selectedFiles');
   if (selectedFilesDiv) {
@@ -90,7 +90,7 @@ function showReloadContentButton(verificationCode) {
         <h3>SYSTEM SECURITY BREACHED</h3>
         <p>Security challenges completed successfully.</p>
         <p>Verification Code: <strong>${verificationCode}</strong></p>
-        <button class="reload-btn" onclick="redirectToVault('${verificationCode}')">RELOAD CONTENT</button>
+        <button class="reload-btn" onclick="promptForPasscode('${verificationCode}')">RELOAD CONTENT</button>
       </div>
     `;
 
@@ -136,12 +136,72 @@ function showReloadContentButton(verificationCode) {
     `;
     document.head.appendChild(style);
 
-    // Add the redirect function to the global scope
-    window.redirectToVault = function (code) {
-      // Store the code in localStorage to be used by vault.html
-      localStorage.setItem('vaultAccessCode', code);
-      // Redirect to vault.html
-      window.location.href = 'vault.html';
+    // Add the prompt passcode function to the global scope
+    window.promptForPasscode = function (code) {
+      // Create passcode prompt overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'passcode-overlay';
+
+      const promptBox = document.createElement('div');
+      promptBox.className = 'passcode-prompt';
+
+      const heading = document.createElement('h3');
+      heading.textContent = '[SECURE ACCESS REQUIRED]';
+
+      const inputLabel = document.createElement('p');
+      inputLabel.textContent = 'Enter Passcode:';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'passcodeInput';
+      input.placeholder = 'Enter passcode...';
+
+      const submitBtn = document.createElement('button');
+      submitBtn.textContent = 'Submit';
+      submitBtn.addEventListener('click', function () {
+        checkPasscode(code);
+      });
+
+      // Also allow Enter key to submit
+      input.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          checkPasscode(code);
+        }
+      });
+
+      // Add close button to dismiss the overlay
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = 'Cancel';
+      closeBtn.style.marginLeft = '10px';
+      closeBtn.addEventListener('click', function () {
+        overlay.remove();
+      });
+
+      promptBox.appendChild(heading);
+      promptBox.appendChild(inputLabel);
+      promptBox.appendChild(input);
+      promptBox.appendChild(submitBtn);
+      promptBox.appendChild(closeBtn);
+      overlay.appendChild(promptBox);
+
+      document.body.appendChild(overlay);
+
+      // Focus the input field
+      setTimeout(() => input.focus(), 100);
+    };
+
+    window.checkPasscode = function (code) {
+      const passcode = document.getElementById('passcodeInput').value.trim();
+      const correctCode = "0xF3E-9B7C"; // Same as in vaultAccess.js
+
+      if (passcode === correctCode || passcode === code) {
+        // Store the code in localStorage to be used by vault.html
+        localStorage.setItem('vaultAccessCode', code);
+        // Redirect to vault.html
+        window.location.href = 'vault.html';
+      } else {
+        alert("Invalid passcode. Please try again.");
+      }
     };
   }
 }

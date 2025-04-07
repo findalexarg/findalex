@@ -40,7 +40,7 @@ export function initGame(containerId) {
     p.glitchButton = null;
 
     p.preload = function () {
-      p.logo = p.loadImage("Logo_Final.jpg");
+      p.logo = p.loadImage("Logo_Final.png");
       p.glitchSound = p.loadSound("glitch-sounds.mp3");
       p.glitchButton = p.loadSound("glitch-button.mp3");
     };
@@ -798,7 +798,7 @@ export function initGame(containerId) {
 
     // Main p5.js functions
     p.setup = function () {
-      p.createCanvas(800, 800);
+      p.createCanvas(1000, 800);
       p.textFont("Courier New");
       p.textAlign(p.CENTER, p.CENTER);
       p.currentStage = 1;
@@ -829,7 +829,7 @@ export function initGame(containerId) {
       }
       p.background(10);
       p.tint(255, 50);
-      p.image(p.logo, 0, 60, 800, 600);
+      p.image(p.logo, 0, 60, 1000, 600);
       p.noTint();
       p.drawProgressBar();
       p.drawTitle();
@@ -898,7 +898,7 @@ export function initGame(containerId) {
     };
 
     p.windowResized = function () {
-      p.resizeCanvas(800, 1200);
+      p.resizeCanvas(1000, 800);
     };
   }, document.getElementById(containerId));
 

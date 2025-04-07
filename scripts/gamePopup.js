@@ -277,7 +277,7 @@ export function launchGamePopup(message) {
       
       #gameCanvasContainer {
         position: relative;
-        width: 800px;
+        width: 1000px;
         height: 800px;
         border: 3px solid #0f0;
         box-shadow: 0 0 30px #0f0;

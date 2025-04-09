@@ -23,6 +23,7 @@ export function initGame(containerId) {
     p.stageStartTime = 0;
     p.roundTimeLimit = 0; // will be set per stage round
     p.timeRemaining = 0;
+    p.lives = 3; // Add lives counter - player gets 3 chances
 
     p.finalScreen = false;
     p.gameCompleted = false; // Flag to track if game has been completed
@@ -33,16 +34,28 @@ export function initGame(containerId) {
     p.glitchDuration = 3000;
     p.startTime = 0;
     p.themeColor = "#00FF00"; // Changed to green for a more "hacker" feel
+    p.loseScreen = false; // New variable to track lose state
+    p.loseScreenTimer = 0; // Timer for lose screen display
+    p.loseScreenDuration = 3000; // Display lose screen for 3 seconds
 
     // Assets
     p.logo = null;
     p.glitchSound = null;
     p.glitchButton = null;
+    p.loseImage = null; // Static image loaded via loadImage
+    p.loseGif = null;   // Animated GIF element created via createImg
 
     p.preload = function () {
       p.logo = p.loadImage("Logo_Final.png");
       p.glitchSound = p.loadSound("glitch-sounds.mp3");
       p.glitchButton = p.loadSound("glitch-button.mp3");
+
+      // Load a static version for fallback
+      p.loseImage = p.loadImage("youLose.gif");
+
+      // Create the animated GIF using createImg (proper way to handle animations)
+      p.loseGif = p.createImg("youLose.gif");
+      p.loseGif.hide(); // Hide initially
     };
 
     // Stage 1 variables
@@ -70,8 +83,8 @@ export function initGame(containerId) {
         let neighbors = [];
         if (last.row > 0) neighbors.push({ row: last.row - 1, col: last.col });
         if (last.row < p.stage1_gridRows - 1) neighbors.push({ row: last.row + 1, col: last.col });
-        if (last.col > 0) neighbors.push({ row: last.row, col: last.col - 1 });
-        if (last.col < p.stage1_gridCols - 1) neighbors.push({ row: last.row, col: last.col + 1 });
+        if (last.col > 0) neighbors.push({ row: last.col - 1, col: last.row });
+        if (last.col < p.stage1_gridCols - 1) neighbors.push({ row: last.col + 1, col: last.row });
 
         const visitedCells = new Set();
         p.stage1_path.forEach(cell => visitedCells.add(`${cell.row},${cell.col}`));
@@ -199,8 +212,17 @@ export function initGame(containerId) {
               let startY = p.height / 2 - gridSize / 2;
               p.rect(startX, startY, gridSize, gridSize);
 
+              p.lives--; // Decrease lives on incorrect input
               p.roundCount = 0;
-              p.initStage1Round();
+
+              if (p.lives <= 0) {
+                // If no lives left, show game over screen
+                p.loseScreen = true;
+                p.loseScreenTimer = p.millis();
+              } else {
+                // Otherwise restart the current round
+                p.initStage1Round();
+              }
             }
           }
         }
@@ -368,8 +390,8 @@ export function initGame(containerId) {
         let neighbors = [];
         if (last.row > 0) neighbors.push({ row: last.row - 1, col: last.col });
         if (last.row < p.stage3_gridRows - 1) neighbors.push({ row: last.row + 1, col: last.col });
-        if (last.col > 0) neighbors.push({ row: last.row, col: last.col - 1 });
-        if (last.col < p.stage3_gridCols - 1) neighbors.push({ row: last.row, col: last.col + 1 });
+        if (last.col > 0) neighbors.push({ row: last.col - 1, col: last.row });
+        if (last.col < p.stage3_gridCols - 1) neighbors.push({ row: last.col + 1, col: last.row });
 
         // Filter out cells already in the path
         neighbors = neighbors.filter(n => !p.stage3_path.some(p => p.row === n.row && p.col === n.col));
@@ -487,8 +509,17 @@ export function initGame(containerId) {
               let startY = p.height / 2 - gridSize / 2;
               p.rect(startX, startY, gridSize, gridSize);
 
+              p.lives--; // Decrease lives on incorrect input
               p.roundCount = 0;
-              p.initStage3Round();
+
+              if (p.lives <= 0) {
+                // If no lives left, show game over screen
+                p.loseScreen = true;
+                p.loseScreenTimer = p.millis();
+              } else {
+                // Otherwise restart the current round
+                p.initStage3Round();
+              }
             }
           }
         }
@@ -608,8 +639,17 @@ export function initGame(containerId) {
         p.rect(0, 0, p.width, p.height);
         p.pop();
 
-        p.stage4_selected = [];
-        p.stage4_scrambled = p.shuffleArray(p.stage4_letters.slice());
+        p.lives--; // Decrease lives on incorrect word
+
+        if (p.lives <= 0) {
+          // If no lives left, show game over screen
+          p.loseScreen = true;
+          p.loseScreenTimer = p.millis();
+        } else {
+          // Otherwise shuffle and try again
+          p.stage4_selected = [];
+          p.stage4_scrambled = p.shuffleArray(p.stage4_letters.slice());
+        }
       }
     };
 
@@ -744,6 +784,7 @@ export function initGame(containerId) {
       }
     };
 
+    // Draw lives indicator in the progress bar area
     p.drawProgressBar = function () {
       let barWidth = 430;
       let barHeight = 20;
@@ -762,9 +803,28 @@ export function initGame(containerId) {
       p.fill(255);
       p.textSize(16);
       p.text("GAME " + p.currentStage + "/4", p.width / 2, startY + barHeight / 2);
+
+      // Draw progress bar fill
       p.noStroke();
       p.fill(p.color(p.themeColor));
       p.rect(startX, startY, barWidth * (p.currentStage / 4), barHeight, 5);
+
+      // Add lives display to the right side of the progress bar
+      p.textAlign(p.LEFT, p.CENTER);
+      p.fill(255);
+      // Position text right after the progress bar
+      p.text("LIVES: ", startX + barWidth + 15, startY + barHeight / 2);
+
+      // Draw heart icons for lives
+      for (let i = 0; i < p.lives; i++) {
+        p.fill(255, 50, 50);
+        p.noStroke();
+        // Position hearts after the "LIVES:" text
+        p.text("♥", startX + barWidth + 65 + i * 15, startY + barHeight / 2);
+      }
+
+      // Reset text alignment to center
+      p.textAlign(p.CENTER, p.CENTER);
     };
 
     p.drawTitle = function () {
@@ -796,6 +856,87 @@ export function initGame(containerId) {
       p.textStyle(p.NORMAL);
     };
 
+    // Show lose screen when time runs out
+    p.showLoseScreen = function () {
+      // Clear background
+      p.background(0);
+
+      // Calculate proper size for the GIF - make it larger to fill more of the popup
+      let targetHeight = p.height * 0.9; // Increase from 0.8 to 0.9
+      let aspectRatio = p.loseImage.width / p.loseImage.height || 1.33;
+      let displayWidth = targetHeight * aspectRatio;
+
+      // Position and show the animated GIF element
+      // Center it, adjusting for the text overlays
+      let gifX = (p.width - displayWidth) / 2;
+      // Move the GIF up a bit to avoid being cut off at the bottom
+      let gifY = (p.height - targetHeight) / 2 - p.height * 0.05;
+
+      // Style and position the animated GIF
+      p.loseGif.position(
+        p.canvas.offsetLeft + gifX,
+        p.canvas.offsetTop + gifY
+      );
+      p.loseGif.size(displayWidth, targetHeight);
+      p.loseGif.show();
+
+      // Adjust overlay positions to match new GIF position
+      // Top overlay - make slightly thinner
+      p.fill(0, 0, 0, 180);
+      p.rect(0, 0, p.width, p.height * 0.2);
+      // Bottom overlay - positioned higher to avoid cutting off GIF
+      p.fill(0, 0, 0, 180);
+      p.rect(0, p.height * 0.8, p.width, p.height * 0.2);
+
+      // Add red glow effect to "TIME'S UP!" text - adjust position with GIF
+      p.push();
+      p.drawingContext.shadowBlur = 15;
+      p.drawingContext.shadowColor = p.color(255, 0, 0);
+      p.textSize(42);
+      p.fill(255, 0, 0);
+      p.textAlign(p.CENTER, p.CENTER);
+
+      // Show different text based on whether lives are left
+      if (p.lives <= 0) {
+        p.text("GAME OVER", p.width / 2, p.height * 0.1);
+      } else {
+        p.text("TIME'S UP!", p.width / 2, p.height * 0.1);
+      }
+      p.pop();
+
+      // Display countdown for returning to game - adjust position with GIF
+      let remainingTime = Math.ceil((p.loseScreenDuration - (p.millis() - p.loseScreenTimer)) / 1000);
+      if (remainingTime > 0) {
+        p.textSize(24);
+        p.fill(255);
+
+        if (p.lives <= 0) {
+          p.text("Restarting game in " + remainingTime + "...", p.width / 2, p.height * 0.9);
+        } else {
+          p.text("Lives remaining: " + p.lives + " - Continuing in " + remainingTime + "...", p.width / 2, p.height * 0.9);
+        }
+      } else {
+        p.textSize(24);
+        p.fill(255);
+        p.text("Click anywhere to continue", p.width / 2, p.height * 0.9);
+      }
+    };
+
+    // Reset game to initial state
+    p.resetGame = function () {
+      p.loseGif.hide(); // Hide the GIF when resetting
+      p.loseScreen = false;
+      p.currentStage = 1;
+      p.roundCount = 0;
+
+      // Only reset lives to 3 if player has run out of lives
+      if (p.lives <= 0) {
+        p.lives = 3;
+      }
+
+      p.initStage();
+    };
+
     // Main p5.js functions
     p.setup = function () {
       p.createCanvas(1000, 800);
@@ -805,10 +946,19 @@ export function initGame(containerId) {
       p.initStage();
     };
 
+    // Modify the draw function to include lose screen logic
     p.draw = function () {
       if (p.finalScreen) {
+        p.loseGif.hide(); // Ensure GIF is hidden on final screen
         p.drawFinalScreen();
         return;
+      }
+
+      if (p.loseScreen) {
+        p.showLoseScreen();
+        return;
+      } else {
+        p.loseGif.hide(); // Hide GIF when not on lose screen
       }
 
       if (!p.started) {
@@ -835,14 +985,12 @@ export function initGame(containerId) {
       p.drawTitle();
       p.drawQuestionBox();
 
-      // Check round timeout
+      // Check round timeout - MODIFIED to show lose screen and decrease lives
       if (p.millis() - p.stageStartTime > p.roundTimeLimit) {
-        p.roundCount = 0;
-        if (p.currentStage === 1) p.initStage1Round();
-        else if (p.currentStage === 2) p.initStage2Round();
-        else if (p.currentStage === 3) p.initStage3Round();
-        else if (p.currentStage === 4) p.initStage4();
-        p.stageStartTime = p.millis();
+        p.lives--; // Decrease lives when time runs out
+        p.loseScreen = true;
+        p.loseScreenTimer = p.millis();
+        return; // Don't continue with game rendering
       }
 
       if (p.currentStage === 1) {
@@ -862,8 +1010,17 @@ export function initGame(containerId) {
       else p.text("Stage 4", 70, 30);
     };
 
+    // Modify mousePressed to handle the lose screen
     p.mousePressed = function () {
       p.getAudioContext().resume();
+
+      if (p.loseScreen) {
+        // Only allow click reset after timer expires
+        if (p.millis() - p.loseScreenTimer > p.loseScreenDuration) {
+          p.resetGame();
+        }
+        return;
+      }
 
       if (!p.started) {
         p.started = true;

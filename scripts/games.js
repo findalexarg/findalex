@@ -367,157 +367,164 @@ export function initGame(containerId) {
       };
 
       // Stage 2 variables
-      p.stage2_lineY = 0;
-      p.stage2_markerX = 0;
-      p.stage2_indicatorX = 0;
-      p.stage2_direction = 1;
-      p.stage2_speed = 6.0; // Slower for easier timing
-      p.stage2_threshold = 30; // Wider hitbox for success
-      p.stage2_pulseSize = 0;
-      p.stage2_pulseDir = 1;
+     p.stage2_lineY = 0;
+p.stage2_markerX = 0;
+p.stage2_indicatorX = 0;
+p.stage2_direction = 1;
+p.stage2_speed = 6.0; // Slower for easier timing
+p.stage2_threshold = 30; // Wider hitbox for success
+p.stage2_pulseSize = 0;
+p.stage2_pulseDir = 1;
 
-      p.initStage2Round = function () {
-        p.stage2_lineY = p.height / 2;
-        p.stage2_markerX = p.random(150, p.width - 150);
-        p.stage2_indicatorX = 150;
-        p.stage2_direction = 1;
-        p.stage2_pulseSize = 0;
-        p.stage2_pulseDir = 1;
-      };
+p.initStage2Round = function () {
+  p.stage2_lineY = p.height / 2;
+  p.stage2_markerX = p.random(150, p.width - 150);
+  p.stage2_indicatorX = 150;
+  p.stage2_direction = 1;
+  p.stage2_pulseSize = 0;
+  p.stage2_pulseDir = 1;
+};
 
-      p.drawStage2 = function () {
-        p.background(10); // Keep it clean
+p.drawStage2 = function () {
+  p.background(10); // Keep it clean
 
-        // Draw terminal-like grid background
-        p.push();
-        p.stroke(0, 100, 0, 30);
-        for (let x = 0; x < p.width; x += 20) {
-          p.line(x, 0, x, p.height);
-        }
-        for (let y = 0; y < p.height; y += 20) {
-          p.line(0, y, p.width, y);
-        }
-        p.pop();
+  // Draw terminal-like grid background
+  p.push();
+  p.stroke(0, 100, 0, 30);
+  for (let x = 0; x < p.width; x += 20) {
+    p.line(x, 0, x, p.height);
+  }
+  for (let y = 0; y < p.height; y += 20) {
+    p.line(0, y, p.width, y);
+  }
+  p.pop();
 
-        // Draw circuit-like decorations
-        p.push();
-        p.stroke(0, 150, 0, 100);
-        p.strokeWeight(1);
-        p.noFill();
-        for (let i = 0; i < 5; i++) {
-          let y = p.map(i, 0, 4, p.height / 2 - 100, p.height / 2 + 100);
-          p.beginShape();
-          for (let x = 100; x < p.width - 100; x += 50) {
-            p.vertex(x, y + p.random(-5, 5));
-          }
-          p.endShape();
-        }
-        p.pop();
+  // Draw circuit-like decorations
+  p.push();
+  p.stroke(0, 150, 0, 100);
+  p.strokeWeight(1);
+  p.noFill();
+  for (let i = 0; i < 5; i++) {
+    let y = p.map(i, 0, 4, p.height / 2 - 100, p.height / 2 + 100);
+    p.beginShape();
+    for (let x = 100; x < p.width - 100; x += 50) {
+      p.vertex(x, y + p.random(-5, 5));
+    }
+    p.endShape();
+  }
+  p.pop();
 
-        // Highlight success zone with pulsing effect
-        p.stage2_pulseSize += 0.05 * p.stage2_pulseDir;
-        if (p.stage2_pulseSize > 1 || p.stage2_pulseSize < 0) p.stage2_pulseDir *= -1;
+  // Highlight success zone with pulsing effect
+  p.stage2_pulseSize += 0.05 * p.stage2_pulseDir;
+  if (p.stage2_pulseSize > 1 || p.stage2_pulseSize < 0) p.stage2_pulseDir *= -1;
+  let pulseAlpha = p.map(p.stage2_pulseSize, 0, 1, 30, 80);
+  p.noStroke();
+  p.fill(0, 255, 0, pulseAlpha);
+  p.rect(p.stage2_markerX - p.stage2_threshold, p.stage2_lineY - 25, p.stage2_threshold * 2, 50);
 
-        let pulseAlpha = p.map(p.stage2_pulseSize, 0, 1, 30, 80);
+  // Draw horizontal line - more cyberpunk
+  p.push();
+  p.drawingContext.shadowBlur = 10;
+  p.drawingContext.shadowColor = p.color(0, 255, 0);
+  p.stroke(0, 255, 0);
+  p.strokeWeight(3);
+  p.line(100, p.stage2_lineY, p.width - 100, p.stage2_lineY);
+  p.pop();
 
-        p.noStroke();
-        p.fill(0, 255, 0, pulseAlpha);
-        p.rect(p.stage2_markerX - p.stage2_threshold, p.stage2_lineY - 25, p.stage2_threshold * 2, 50);
+  // Draw marker (target position)
+  p.push();
+  p.drawingContext.shadowBlur = 15;
+  p.drawingContext.shadowColor = p.color(0, 255, 0);
+  p.stroke(0, 255, 0);
+  p.strokeWeight(5);
+  p.line(p.stage2_markerX, p.stage2_lineY - 30, p.stage2_markerX, p.stage2_lineY + 30);
+  p.pop();
 
-        // Draw horizontal line - more cyberpunk
-        p.push();
-        p.drawingContext.shadowBlur = 10;
-        p.drawingContext.shadowColor = p.color(0, 255, 0);
-        p.stroke(0, 255, 0);
-        p.strokeWeight(3);
-        p.line(100, p.stage2_lineY, p.width - 100, p.stage2_lineY);
-        p.pop();
+  // Draw indicator (moving target) with a glowing effect
+  p.push();
+  p.drawingContext.shadowBlur = 20;
+  p.drawingContext.shadowColor = p.color(255, 0, 0);
+  p.fill(255, 0, 0);
+  p.noStroke();
+  p.ellipse(p.stage2_indicatorX, p.stage2_lineY, 20, 20);
+  p.pop();
 
-        // Draw marker (target position)
-        p.push();
-        p.drawingContext.shadowBlur = 15;
-        p.drawingContext.shadowColor = p.color(0, 255, 0);
-        p.stroke(0, 255, 0);
-        p.strokeWeight(5);
-        p.line(p.stage2_markerX, p.stage2_lineY - 30, p.stage2_markerX, p.stage2_lineY + 30);
-        p.pop();
+  // Display time and instructions
+  p.fill(255);
+  p.textSize(24);
+  p.textAlign(p.CENTER, p.CENTER);
+  p.text("Press SPACE or CLICK to stop the target in the green zone", p.width / 2, p.height / 2 - 100);
+  
+  let timeLeft = p.roundTimeLimit - (p.millis() - p.stageStartTime);
+  if (timeLeft > 0) {
+    p.fill(255);
+    p.textSize(24);
+    p.text("Time: " + p.ceil(timeLeft / 1000) + "s", p.width / 2, p.height / 2 + 100);
+  }
 
-        // Draw indicator (moving target) with a glowing effect
-        p.push();
-        p.drawingContext.shadowBlur = 20;
-        p.drawingContext.shadowColor = p.color(255, 0, 0);
-        p.fill(255, 0, 0);
-        p.noStroke();
-        p.ellipse(p.stage2_indicatorX, p.stage2_lineY, 20, 20);
-        p.pop();
+  // Display lives indicator on the right side of the canvas
+  p.fill(255);
+  p.textAlign(p.RIGHT, p.CENTER);
+  // Adjust the x coordinate using p.width to position on the right side.
+  p.text("LIVES:", p.width - 50, 50);
+  for (let i = 0; i < p.lives; i++) {
+    p.fill(255, 50, 50);
+    p.noStroke();
+    // Each heart is drawn moving leftward from the right edge.
+    p.text("♥", p.width - 50 - (i + 1) * 15, 50);
+  }
+  // Reset text alignment if needed
+  p.textAlign(p.CENTER, p.CENTER);
+};
 
-        // Display time and instructions
-        p.fill(255);
-        p.textSize(24);
-        p.text("Press SPACE or CLICK to stop the target in the green zone", p.width / 2, p.height / 2 - 100);
+p.updateStage2 = function () {
+  p.stage2_indicatorX += p.stage2_speed * p.stage2_direction;
+  if (p.stage2_indicatorX > p.width - 100 || p.stage2_indicatorX < 100) {
+    p.stage2_direction *= -1;
+  }
+};
 
-        let timeLeft = p.roundTimeLimit - (p.millis() - p.stageStartTime);
-        if (timeLeft > 0) {
-          p.fill(255);
-          p.textSize(24);
-          p.text("Time: " + p.ceil(timeLeft / 1000) + "s", p.width / 2, p.height / 2 + 100);
-        }
+p.handleStage2Stop = function () {
+  let diff = p.abs(p.stage2_indicatorX - p.stage2_markerX);
 
-        // Display lives indicator in this stage too (was missing)
-        p.fill(255);
-        p.textAlign(p.RIGHT, p.CENTER);
-        p.text("LIVES: ", 50, 50);
-        for (let i = 0; i < p.lives; i++) {
-          p.fill(255, 50, 50);
-          p.noStroke();
-          p.text("♥", 100 + i * 15, 50);
-        }
-        p.textAlign(p.CENTER, p.CENTER);
-      };
+  // Display visual feedback
+  p.push();
+  if (diff < p.stage2_threshold) {
+    // Success flash
+    p.drawingContext.shadowBlur = 30;
+    p.drawingContext.shadowColor = p.color(0, 255, 0);
+    p.fill(0, 255, 0, 100);
+    p.rect(0, 0, p.width, p.height);
+  } else {
+    // Failure flash
+    p.drawingContext.shadowBlur = 30;
+    p.drawingContext.shadowColor = p.color(255, 0, 0);
+    p.fill(255, 0, 0, 100);
+    p.rect(0, 0, p.width, p.height);
+  }
+  p.pop();
 
-      p.updateStage2 = function () {
-        p.stage2_indicatorX += p.stage2_speed * p.stage2_direction;
-        if (p.stage2_indicatorX > p.width - 100 || p.stage2_indicatorX < 100) {
-          p.stage2_direction *= -1;
-        }
-      };
-
-      p.handleStage2Stop = function () {
-        let diff = p.abs(p.stage2_indicatorX - p.stage2_markerX);
-
-        // Display visual feedback
-        p.push();
-        if (diff < p.stage2_threshold) {
-          // Success flash
-          p.drawingContext.shadowBlur = 30;
-          p.drawingContext.shadowColor = p.color(0, 255, 0);
-          p.fill(0, 255, 0, 100);
-          p.rect(0, 0, p.width, p.height);
-        } else {
-          // Failure flash
-          p.drawingContext.shadowBlur = 30;
-          p.drawingContext.shadowColor = p.color(255, 0, 0);
-          p.fill(255, 0, 0, 100);
-          p.rect(0, 0, p.width, p.height);
-        }
-        p.pop();
-
-        if (diff < p.stage2_threshold) {
-          // Successful stop
-          p.roundCount++;
-
-          if (p.roundCount >= 5) {
-            p.nextStage();
-          } else {
-            p.initStage2Round();
-            p.stageStartTime = p.millis();
-          }
-        } else {
-          // Missed, but don't reset completely
-          p.initStage2Round();
-          p.stageStartTime = p.millis();
-        }
-      };
+  if (diff < p.stage2_threshold) {
+    // Successful stop: increment round count and advance stage if applicable
+    p.roundCount++;
+    if (p.roundCount >= 5) {
+      p.nextStage();
+    } else {
+      p.initStage2Round();
+      p.stageStartTime = p.millis();
+    }
+  } else {
+    // Failed stop: reduce a life and restart the round.
+    p.lives--;
+    // Optionally: check for game over when lives run out.
+    if (p.lives <= 0) {
+      // Game over logic can be inserted here
+      // For example: p.gameOver = true; or reset the game.
+    }
+    p.initStage2Round();
+    p.stageStartTime = p.millis();
+  }
+};
 
       // Stage 3 variables
       p.stage3_gridRows = 4;

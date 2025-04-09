@@ -122,52 +122,73 @@ export function initGame(containerId) {
           play: function () { console.log("Playing game over voice"); }
         };
 
-        // Create a simple DIV element for the GAME OVER display since the GIF isn't working
+        // Create a proper GIF element for game over screen
         try {
+          // First load static image as fallback
+          p.loseImage = p.loadImage("youLose.gif");
+
+          // Create the animated GIF element properly
           p.loseGif = document.createElement('div');
-          p.loseGif.style.background = 'rgba(255,0,0,0.5)';
+          p.loseGif.style.position = 'fixed'; // Use fixed instead of absolute for better positioning
           p.loseGif.style.display = 'none';
-          p.loseGif.style.position = 'absolute';
-          p.loseGif.style.color = 'white';
-          p.loseGif.style.fontSize = '48px';
-          p.loseGif.style.fontWeight = 'bold';
-          p.loseGif.style.textAlign = 'center';
-          p.loseGif.style.display = 'flex';
-          p.loseGif.style.alignItems = 'center';
-          p.loseGif.style.justifyContent = 'center';
           p.loseGif.style.zIndex = '1000';
-          p.loseGif.style.fontFamily = 'Courier New, monospace';
-          p.loseGif.innerHTML = '<div>GAME OVER</div>';
+          p.loseGif.style.overflow = 'hidden';
+          p.loseGif.style.backgroundColor = 'black';
+          p.loseGif.style.textAlign = 'center'; // Center content
+          p.loseGif.style.display = 'flex';
+          p.loseGif.style.justifyContent = 'center'; // Center horizontally
+          p.loseGif.style.alignItems = 'center'; // Center vertically
+
+          // Create an actual image element for the GIF
+          const gifImg = document.createElement('img');
+          gifImg.src = "youLose.gif";
+          gifImg.style.maxWidth = '80%'; // Limit width to 80% of container
+          gifImg.style.maxHeight = '80%'; // Limit height to 80% of container
+          gifImg.style.margin = 'auto'; // Center the image
+          p.loseGif.appendChild(gifImg);
+
+          // Add container to the DOM
           container.appendChild(p.loseGif);
 
+          // Add helper methods
           p.loseGif.position = function (x, y) {
-            this.style.left = x + 'px';
-            this.style.top = y + 'px';
+            // Make sure we set top and left to the proper position relative to viewport
+            this.style.top = '0px';
+            this.style.left = '0px';
+            this.style.width = '100%';
+            this.style.height = '100%';
           };
 
           p.loseGif.size = function (w, h) {
-            this.style.width = w + 'px';
-            this.style.height = h + 'px';
+            // Intentionally not setting width/height directly to ensure full coverage
           };
 
           p.loseGif.show = function () {
-            console.log("Showing game over screen");
-            this.style.display = 'flex';
+            console.log("Showing game over GIF");
+            this.style.display = 'block';
           };
 
           p.loseGif.hide = function () {
             this.style.display = 'none';
           };
 
+          p.loseGif.setMessage = function (message) {
+            // Instead of modifying the text overlay inside the GIF,
+            // we'll draw this message on the canvas itself
+          };
+
           p.loseGif.hide();
-          console.log("Custom game over element created");
+          console.log("Game over GIF element created successfully");
         } catch (e) {
-          console.error("Error creating game over element:", e);
+          console.error("Error creating game over GIF element:", e);
+
+          // Create a simple fallback if GIF loading fails
           p.loseGif = {
             position: function () { },
             size: function () { },
-            show: function () { console.log("Would show game over if element existed"); },
-            hide: function () { }
+            show: function () { console.log("Would show game over GIF if element existed"); },
+            hide: function () { },
+            setMessage: function () { }
           };
         }
 
@@ -1018,48 +1039,51 @@ export function initGame(containerId) {
           p.soundsPlaying = true;
         }
 
-        // Use a simple red overlay instead of trying to use GIF
-        // Show the loseGif DIV with proper positioning relative to canvas
+        // Position and show the GIF
         let canvas = p.canvas || document.querySelector('canvas');
         if (canvas && p.loseGif) {
-          let rect = canvas.getBoundingClientRect();
+          // Don't try to position relative to canvas - use the whole viewport
+          p.loseGif.position(); // No args needed with our new implementation
 
-          // Position the loseGif element over the canvas
-          p.loseGif.style.position = 'absolute';
-          p.loseGif.style.left = rect.left + 'px';
-          p.loseGif.style.top = rect.top + 'px';
-          p.loseGif.style.width = rect.width + 'px';
-          p.loseGif.style.height = rect.height + 'px';
-
-          // Update text based on lives
-          if (p.lives <= 0) {
-            p.loseGif.innerHTML = '<div>GAME OVER</div>';
-          } else {
-            p.loseGif.innerHTML = '<div>TIME\'S UP!</div>';
-          }
+          // Add debug logging to understand positioning issues
+          console.log("Canvas position:", canvas.getBoundingClientRect());
+          console.log("Showing game over GIF");
 
           p.loseGif.show();
+
+          // Draw text messages on the canvas instead of overlaying on the GIF
+          // This way the text won't interfere with the GIF
         } else {
           // Fallback if element creation failed - draw directly on canvas
-          p.background(255, 0, 0, 100);
-          p.textSize(72);
-          p.textAlign(p.CENTER, p.CENTER);
-          p.fill(255);
-          p.text(p.lives <= 0 ? "GAME OVER" : "TIME'S UP!", p.width / 2, p.height / 2);
+          p.fill(255, 0, 0, 100);
+          p.rect(0, 0, p.width, p.height);
         }
 
-        // Display countdown for returning to game
-        let remainingTime = Math.ceil((p.loseScreenDuration - (p.millis() - p.loseScreenTimer)) / 1000);
+        // Display message and countdown at the bottom of the screen
+        // so it doesn't interfere with the centered GIF
+        p.fill(0, 0, 0, 180); // Semi-transparent black background
+        p.rect(0, p.height * 0.85, p.width, p.height * 0.15); // Bottom bar
+
         p.fill(255);
         p.textSize(24);
+        p.textAlign(p.CENTER, p.CENTER);
+
+        // Draw appropriate message
+        p.textSize(32);
+        p.text(p.lives <= 0 ? "GAME OVER" : "TIME'S UP!", p.width / 2, p.height * 0.1);
+
+        // Display countdown info
+        p.textSize(24);
+        let remainingTime = Math.ceil((p.loseScreenDuration - (p.millis() - p.loseScreenTimer)) / 1000);
+
         if (remainingTime > 0) {
           if (p.lives <= 0) {
-            p.text("Restarting game in " + remainingTime + "...", p.width / 2, p.height * 0.9);
+            p.text("Restarting game in " + remainingTime + "...", p.width / 2, p.height * 0.93);
           } else {
-            p.text("Lives remaining: " + p.lives + " - Continuing in " + remainingTime + "...", p.width / 2, p.height * 0.9);
+            p.text("Lives remaining: " + p.lives + " - Continuing in " + remainingTime + "...", p.width / 2, p.height * 0.93);
           }
         } else {
-          p.text("Click anywhere to continue", p.width / 2, p.height * 0.9);
+          p.text("Click anywhere to continue", p.width / 2, p.height * 0.93);
         }
       };
 

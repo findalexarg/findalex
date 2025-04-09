@@ -465,7 +465,7 @@ export function initGame(containerId) {
 
         // Display lives indicator in this stage too (was missing)
         p.fill(255);
-        p.textAlign(p.LEFT, p.CENTER);
+        p.textAlign(p.RIGHT, p.CENTER);
         p.text("LIVES: ", 50, 50);
         for (let i = 0; i < p.lives; i++) {
           p.fill(255, 50, 50);

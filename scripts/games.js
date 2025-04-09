@@ -516,15 +516,18 @@ p.handleStage2Stop = function () {
   } else {
     // Failed stop: reduce a life and restart the round.
     p.lives--;
-    // Optionally: check for game over when lives run out.
     if (p.lives <= 0) {
-      // Game over logic can be inserted here
-      // For example: p.gameOver = true; or reset the game.
+      // If no lives left, show game over screen
+      p.loseScreen = true;
+      p.loseScreenTimer = p.millis();
+    } else {
+      // Otherwise, just restart the round.
+      p.initStage2Round();
+      p.stageStartTime = p.millis();
     }
-    p.initStage2Round();
-    p.stageStartTime = p.millis();
   }
 };
+
 
       // Stage 3 variables
       p.stage3_gridRows = 4;

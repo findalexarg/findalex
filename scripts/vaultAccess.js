@@ -1,6 +1,6 @@
 // Vault access functionality
 const correctCode = "0xF3E-9B7C"; // change as needed
-const requiredHours = 12;
+const requiredHours = 30 / 3600; // 30 seconds converted to hours (30/3600 = 0.008333...)
 const vaultKey = "vaultAccessTimestamp";
 let countdownInterval; // Variable to store the countdown interval
 

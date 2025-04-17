@@ -26,10 +26,17 @@
 }
 
 .info-wrapper {
-  flex: 2 1 400px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.info-wrapper .missing-poster {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .info-wrapper h2 {
@@ -40,6 +47,17 @@
 
 .info-wrapper p {
   margin-bottom: 8px;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  .info-wrapper .missing-poster {
+    width: 90%; /* Use less than full width on mobile for some margin */
+  }
+
+  .missing-profile {
+    flex-direction: column;
+  }
 }
 
 /* Social Media Links Section */

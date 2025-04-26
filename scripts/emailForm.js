@@ -8,9 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Grab the entered email
       let email = document.getElementById("playerEmail").value;
-      if (email == "alexleighton97@gmail.com") {
-        return;
-      }
+
       // Google Apps Script URL (update with your deployed web app URL)
       let scriptURL = "https://script.google.com/macros/s/AKfycbyf1ApsCNdUv_-NMI5Tc1ljuMldxmil0ZkvnF7vpt-KOgIqExhow36xzVNYGL7q6COJaA/exec";
 
